@@ -383,18 +383,6 @@ export default function Master() {
 
   const [archivos,   setArchivos]   = useState({ beetrak: null, pfa: null });
   const [joinData,   setJoinData]   = useState(null);
-  const [backendOk,  setBackendOk]  = useState(null);
-
-  const checkBackend = async () => {
-    try {
-      const r = await fetch(`${API}/`);
-      setBackendOk(r.ok);
-      addLog(r.ok ? "Backend conectado (Cloud Run)" : "Backend no responde", r.ok ? "success" : "error");
-    } catch {
-      setBackendOk(false);
-      addLog("No se puede conectar al backend", "error");
-    }
-  };
 
   const handleFile = (tipo, file) => {
     setArchivos(prev => ({ ...prev, [tipo]: file }));
@@ -453,10 +441,6 @@ export default function Master() {
               {hayPendientes ? "Procesando..." : "Limpiar y procesar"}
             </button>
             <button className="btn-ghost" onClick={reset}>Reiniciar</button>
-            <button className="status-pill" onClick={checkBackend} style={{ marginLeft: "auto" }}>
-              <span className={`pulse ${backendOk === false ? "off" : ""}`} />
-              {backendOk === null ? "Verificar backend" : backendOk ? "Backend ok" : "Sin conexión"}
-            </button>
           </div>
           {(uploads.beetrak.stats || uploads.pfa.stats) && (
             <div className="stats-section">

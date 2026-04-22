@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch { border-radius: 10px; overflow: hidden; width: 80px; }
+.color { height: 56px; }
+.label { padding: 4px 6px; background: white; font-size: 9px; font-family: var(--font-head); font-weight: 700; color: #3A4A6B; letter-spacing: 0.04em; }
+.sub { font-size: 8px; color: #7A869E; font-weight: 400; font-family: var(--font-body); }
+.group-label { font-family: var(--font-head); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text3); margin: 10px 0 6px; }
+</style></head><body>
+<div class="group-label">Surfaces</div>
+<div class="row">
+  <div class="swatch"><div class="color" style="background:#F0F2F8;border:1px solid #dde2ee;"></div><div class="label">--bg<div class="sub">#F0F2F8</div></div></div>
+  <div class="swatch"><div class="color" style="background:#FFFFFF;border:1px solid #dde2ee;"></div><div class="label">--bg2<div class="sub">#FFFFFF</div></div></div>
+  <div class="swatch"><div class="color" style="background:#E4E8F4;border:1px solid #dde2ee;"></div><div class="label">--bg3<div class="sub">#E4E8F4</div></div></div>
+</div>
+<div class="group-label">Text</div>
+<div class="row">
+  <div class="swatch"><div class="color" style="background:#0B1C49;"></div><div class="label">--text<div class="sub">#0B1C49</div></div></div>
+  <div class="swatch"><div class="color" style="background:#3A4A6B;"></div><div class="label">--text2<div class="sub">#3A4A6B</div></div></div>
+  <div class="swatch"><div class="color" style="background:#7A869E;"></div><div class="label">--text3<div class="sub">#7A869E</div></div></div>
+</div>
+<div class="group-label">Brand</div>
+<div class="row">
+  <div class="swatch"><div class="color" style="background:#D64294;"></div><div class="label">--pink<div class="sub">#D64294</div></div></div>
+  <div class="swatch"><div class="color" style="background:#7E143A;"></div><div class="label">--claret<div class="sub">#7E143A</div></div></div>
+  <div class="swatch"><div class="color" style="background:#9F4F69;"></div><div class="label">--china<div class="sub">#9F4F69</div></div></div>
+  <div class="swatch"><div class="color" style="background:linear-gradient(135deg,#D64294,#7E143A);"></div><div class="label">--gradient<div class="sub">135deg</div></div></div>
+</div>
+</body></html>

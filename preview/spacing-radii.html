@@ -1,0 +1,57 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.section { display: flex; flex-direction: column; gap: 8px; }
+.lbl { font-family: var(--font-head); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7A869E; }
+.radius-row { display: flex; gap: 8px; align-items: flex-end; }
+.box { background: #fff; border: 1px solid rgba(11,28,73,0.12); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 9px; font-weight: 700; color: #7A869E; flex-direction: column; gap: 2px; }
+.shadow-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.shadow-box { background: #fff; border-radius: 12px; width: 80px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-family: var(--font-head); font-weight: 700; color: #7A869E; }
+</style></head><body>
+<div class="section">
+  <div class="lbl">Corner Radii</div>
+  <div class="radius-row">
+    <div class="box" style="width:50px;height:38px;border-radius:8px">8px<span>input</span></div>
+    <div class="box" style="width:60px;height:46px;border-radius:12px">12px<span>card</span></div>
+    <div class="box" style="width:68px;height:52px;border-radius:16px">16px<span>modal</span></div>
+    <div class="box" style="width:76px;height:58px;border-radius:20px">20px<span>auth</span></div>
+    <div class="box" style="width:84px;height:34px;border-radius:24px">24px<span>pill/btn</span></div>
+  </div>
+</div>
+<div class="section">
+  <div class="lbl">Shadows</div>
+  <div class="shadow-row">
+    <div class="shadow-box" style="box-shadow:0 8px 40px rgba(11,28,73,0.08)">card</div>
+    <div class="shadow-box" style="box-shadow:0 20px 60px rgba(0,0,0,0.25)">modal</div>
+    <div class="shadow-box" style="box-shadow:0 4px 20px rgba(214,66,148,0.30)">btn</div>
+    <div class="shadow-box" style="box-shadow:0 0 0 2px rgba(214,66,148,0.15);border:1px solid #D64294">focus</div>
+  </div>
+</div>
+<div class="section">
+  <div class="lbl">Spacing Scale</div>
+  <div style="display:flex;gap:4px;align-items:flex-end">
+    <div style="background:#D64294;opacity:0.5;width:4px;height:4px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.5;width:8px;height:8px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.6;width:12px;height:12px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.65;width:16px;height:16px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.7;width:20px;height:20px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.75;width:24px;height:24px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.8;width:32px;height:32px;border-radius:2px"></div>
+    <div style="background:#D64294;opacity:0.9;width:40px;height:40px;border-radius:2px"></div>
+    <div style="background:#D64294;width:48px;height:48px;border-radius:2px"></div>
+  </div>
+  <div style="display:flex;gap:4px;align-items:flex-end">
+    <span style="font-size:8px;color:#7A869E;width:4px;text-align:center">4</span>
+    <span style="font-size:8px;color:#7A869E;width:8px;text-align:center">8</span>
+    <span style="font-size:8px;color:#7A869E;width:12px;text-align:center">12</span>
+    <span style="font-size:8px;color:#7A869E;width:16px;text-align:center">16</span>
+    <span style="font-size:8px;color:#7A869E;width:20px;text-align:center">20</span>
+    <span style="font-size:8px;color:#7A869E;width:24px;text-align:center">24</span>
+    <span style="font-size:8px;color:#7A869E;width:32px;text-align:center">32</span>
+    <span style="font-size:8px;color:#7A869E;width:40px;text-align:center">40</span>
+    <span style="font-size:8px;color:#7A869E;width:48px;text-align:center">48</span>
+  </div>
+</div>
+</body></html>

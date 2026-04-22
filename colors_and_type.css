@@ -1,0 +1,236 @@
+/* ============================================================
+   SIGMC Design System — Colors & Typography Tokens
+   Brand: Valdishopper SpA — Brand Kit oficial marzo 2026
+   Fuente de verdad: skill valdishopper-linea-grafica
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@300;400;700&family=JetBrains+Mono:wght@400&display=swap');
+
+/* ────────────────────────────────────────────
+   PALETA PRIMARIA (Brand Kit 2025)
+   ──────────────────────────────────────────── */
+:root {
+  --vs-pink:         #D64294;   /* Primario — CTAs, highlights, íconos activos */
+  --vs-navy:         #0B1C49;   /* Secundario — fondos, headers, texto principal */
+  --vs-white:        #FFFFFF;   /* Base — fondos, texto sobre navy */
+}
+
+/* ────────────────────────────────────────────
+   PALETA EXTENDIDA PINK
+   ──────────────────────────────────────────── */
+:root {
+  --vs-pink-light:   #F0A0CC;   /* Fondos suaves, hover states, tags */
+  --vs-pink-dark:    #A02D6E;   /* Texto sobre fondo claro, pressed states */
+  --vs-pink-subtle:  #FBF0F7;   /* Fondos de sección, tarjetas con acento pink */
+}
+
+/* ────────────────────────────────────────────
+   PALETA EXTENDIDA NAVY
+   ──────────────────────────────────────────── */
+:root {
+  --vs-navy-light:   #1E3A7A;   /* Hover sobre navy, bordes secundarios */
+  --vs-navy-muted:   #3D5490;   /* Texto secundario sobre fondos oscuros */
+  --vs-navy-subtle:  #EEF1F8;   /* Fondos muy suaves con acento azul */
+}
+
+/* ────────────────────────────────────────────
+   GRISES NEUTROS
+   ──────────────────────────────────────────── */
+:root {
+  --vs-gray-light:   #F5F6FA;   /* Fondos neutros, filas alternas en tablas */
+  --vs-gray-mid:     #8A94A8;   /* Texto placeholder, subtítulos */
+  --vs-gray-dark:    #3A3F52;   /* Texto terciario, bordes sutiles */
+}
+
+/* ────────────────────────────────────────────
+   SEMÁNTICOS
+   ──────────────────────────────────────────── */
+:root {
+  --vs-success:      #1B8A5A;
+  --vs-warning:      #D98A00;
+  --vs-danger:       #C0392B;
+}
+
+/* ────────────────────────────────────────────
+   TIPOGRAFÍA — BRAND KIT OFICIAL (PDF marzo 2026)
+   PDF confirma: Montserrat títulos + Poppins textos
+   NOTA: El skill valdishopper-linea-grafica mencionaba "League Spartan"
+   pero el PDF brand kit oficial dice Montserrat + Poppins. PDF = fuente de verdad.
+   ──────────────────────────────────────────── */
+:root {
+  --vs-font-title:   'Montserrat', sans-serif;   /* Títulos (700-800) — confirmado PDF */
+  --vs-font-body:    'Poppins', sans-serif;       /* Cuerpo / UI (300-400) — confirmado PDF */
+  --vs-font-mono:    'JetBrains Mono', monospace; /* Código */
+  /* Nota: Logo usa "Gobold Italic" — NO usar en UI */
+}
+
+/* ────────────────────────────────────────────
+   RADIOS
+   ──────────────────────────────────────────── */
+:root {
+  --vs-radius-sm:    6px;
+  --vs-radius-md:    10px;
+  --vs-radius-lg:    16px;
+  --vs-radius-pill:  999px;
+}
+
+/* ────────────────────────────────────────────
+   SOMBRAS
+   ──────────────────────────────────────────── */
+:root {
+  --vs-shadow-sm:    0 1px 4px rgba(11,28,73,0.10);
+  --vs-shadow-md:    0 4px 16px rgba(11,28,73,0.14);
+  --vs-shadow-lg:    0 8px 32px rgba(11,28,73,0.18);
+}
+
+/* ────────────────────────────────────────────
+   ALIASES SIGMC (app actual — puede divergir del brand kit)
+   La app usa Montserrat+Poppins en lugar de League Spartan+Montserrat.
+   Estos aliases mantienen compatibilidad con el codebase existente.
+   ──────────────────────────────────────────── */
+:root {
+  /* Surfaces (app) */
+  --bg:        #F0F2F8;
+  --bg2:       #FFFFFF;
+  --bg3:       #E4E8F4;
+  --border:    rgba(11,28,73,0.10);
+  --border2:   rgba(11,28,73,0.18);
+
+  /* Text (app) */
+  --text:      #0B1C49;
+  --text2:     #3A4A6B;
+  --text3:     #7A869E;
+
+  /* Accent aliases */
+  --pink:      var(--vs-pink);
+  --claret:    #7E143A;
+  --china:     #9F4F69;
+  --green:     #00C48C;
+  --blue:      #4A90E2;
+  --red:       #FF4466;
+  --orange:    #FF6B35;
+  --violet:    #7C3AED;
+
+  --gradient:  linear-gradient(135deg, #D64294, #7E143A);
+
+  /* Fonts (app — diverge del brand kit oficial) */
+  --font-head: 'Montserrat', sans-serif;
+  --font-body: 'Poppins', sans-serif;
+
+  /* Spacing */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
+
+  /* Radii (app) */
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px; --radius-full:24px;
+
+  /* Shadows (app) */
+  --shadow-card:  0 8px 40px rgba(11,28,73,0.08);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.25);
+  --shadow-btn:   0 4px 20px rgba(214,66,148,0.30);
+}
+
+/* ────────────────────────────────────────────
+   CLASES SEMÁNTICAS — BRAND KIT
+   ──────────────────────────────────────────── */
+
+/* Título principal (League Spartan) */
+.vs-title {
+  font-family: var(--vs-font-title);
+  font-weight: 700;
+  color: var(--vs-navy);
+  letter-spacing: -0.02em;
+}
+
+/* Cuerpo / UI (Montserrat) */
+.vs-body {
+  font-family: var(--vs-font-body);
+  font-weight: 400;
+  color: var(--vs-navy);
+}
+
+/* Botón primario */
+.vs-btn-primary {
+  background: var(--vs-pink);
+  color: var(--vs-white);
+  font-family: var(--vs-font-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--vs-radius-pill);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s;
+}
+.vs-btn-primary:hover { background: var(--vs-pink-dark); }
+
+/* Botón secundario */
+.vs-btn-secondary {
+  background: transparent;
+  color: var(--vs-navy);
+  font-family: var(--vs-font-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 24px;
+  border: 1.5px solid var(--vs-navy);
+  border-radius: var(--vs-radius-pill);
+  cursor: pointer;
+}
+
+/* Badge soft */
+.vs-badge-pink {
+  background: var(--vs-pink-subtle);
+  color: var(--vs-pink-dark);
+  font-family: var(--vs-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--vs-radius-pill);
+}
+.vs-badge-navy {
+  background: var(--vs-navy-subtle);
+  color: var(--vs-navy);
+  font-family: var(--vs-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--vs-radius-pill);
+}
+
+/* Card base */
+.vs-card {
+  background: var(--vs-white);
+  border: 0.5px solid #D0D5E8;
+  border-radius: var(--vs-radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--vs-shadow-sm);
+  font-family: var(--vs-font-body);
+}
+
+/* Header / Navbar dark */
+.vs-header {
+  background: var(--vs-navy);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Toast (obligatorio por regla de Agustín) */
+.vs-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--vs-navy);
+  color: var(--vs-white);
+  font-family: var(--vs-font-body);
+  font-size: 13px;
+  padding: 12px 18px;
+  border-radius: var(--vs-radius-md);
+  box-shadow: var(--vs-shadow-md);
+  z-index: 9999;
+}
+.vs-toast.success { border-left: 4px solid var(--vs-success); }
+.vs-toast.danger  { border-left: 4px solid var(--vs-danger); }
+.vs-toast.warning { border-left: 4px solid var(--vs-warning); }

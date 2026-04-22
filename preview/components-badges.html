@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lbl { font-family: var(--font-head); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7A869E; min-width: 80px; }
+.tipo-badge { font-family: var(--font-head); font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 24px; border: 1px solid; letter-spacing: 0.04em; }
+.user-rol { font-family: var(--font-head); font-size: 10px; font-weight: 700; background: rgba(214,66,148,0.08); color: #D64294; padding: 1px 8px; border-radius: 24px; text-transform: uppercase; letter-spacing: 0.06em; }
+.tab-btn { background: #fff; border: 1px solid rgba(11,28,73,0.1); border-radius: 24px; padding: 8px 20px; font-family: var(--font-head); font-size: 12px; font-weight: 700; color: #3A4A6B; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.tab-btn.active { background: rgba(214,66,148,0.1); border-color: #D64294; color: #D64294; }
+.tab-count { font-size: 10px; background: #E4E8F4; border-radius: 24px; padding: 1px 8px; color: #7A869E; }
+.tab-btn.active .tab-count { background: rgba(214,66,148,0.12); color: #D64294; }
+.hist-badge { font-family: var(--font-head); font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 24px; border: 1px solid; letter-spacing: 0.04em; }
+.status-pill { display: flex; align-items: center; gap: 8px; background: rgba(0,196,140,0.08); border: 1px solid rgba(0,196,140,0.25); border-radius: 24px; padding: 6px 14px; font-size: 12px; color: #00896B; }
+.pulse { width: 7px; height: 7px; background: #00C48C; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+.flash-ok { background: rgba(0,196,140,.1); color: #00C48C; border: 1px solid rgba(0,196,140,.2); border-radius: 24px; font-size: 12px; padding: 8px 16px; }
+.flash-err { background: rgba(255,68,102,.1); color: #FF4466; border: 1px solid rgba(255,68,102,.2); border-radius: 24px; font-size: 12px; padding: 8px 16px; }
+</style></head><body>
+<div class="row"><div class="lbl">Tipo Badges</div>
+  <span class="tipo-badge" style="color:#D64294;border-color:rgba(214,66,148,0.4)">BEETRAK</span>
+  <span class="tipo-badge" style="color:#FF6B35;border-color:rgba(255,107,53,0.4)">PFA</span>
+  <span class="tipo-badge" style="color:#7C3AED;border-color:rgba(124,58,237,0.4)">GEOSORT</span>
+  <span class="tipo-badge" style="color:#00C48C;border-color:rgba(0,196,140,0.4)">DELIVERY</span>
+</div>
+<div class="row"><div class="lbl">Rol Badge</div>
+  <span class="user-rol">finanzas</span>
+  <span class="user-rol" style="color:#00C48C;background:rgba(0,196,140,0.08)">admin</span>
+  <span class="user-rol" style="color:#7C3AED;background:rgba(124,58,237,0.08)">mejora</span>
+</div>
+<div class="row"><div class="lbl">Tab Toggle</div>
+  <button class="tab-btn active">Beetrak <span class="tab-count">12,847</span></button>
+  <button class="tab-btn">PFA <span class="tab-count">8,320</span></button>
+</div>
+<div class="row"><div class="lbl">Hist. Badge</div>
+  <span class="hist-badge" style="color:#00C48C;border-color:rgba(0,196,140,0.35)">beetrak</span>
+  <span class="hist-badge" style="color:#FF6B35;border-color:rgba(255,107,53,0.35)">pfa</span>
+</div>
+<div class="row"><div class="lbl">Status Pill</div>
+  <div class="status-pill"><span class="pulse"></span>API conectada</div>
+</div>
+<div class="row"><div class="lbl">Flash Msgs</div>
+  <span class="flash-ok">Usuario guardado correctamente</span>
+  <span class="flash-err">Error al guardar</span>
+</div>
+</body></html>

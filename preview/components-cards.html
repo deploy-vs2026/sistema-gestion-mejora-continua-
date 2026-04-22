@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.metric-card { background: #fff; border: 1px solid rgba(11,28,73,0.1); border-radius: 12px; padding: 20px; border-top: 2px solid var(--ac); min-width: 160px; }
+.metric-val { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: #0B1C49; }
+.metric-label { font-size: 12px; color: #7A869E; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.card { background: #fff; border: 1px solid rgba(11,28,73,0.1); border-radius: 12px; padding: 20px; min-width: 200px; }
+.card-label { font-family: var(--font-head); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #7A869E; margin-bottom: 12px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-item { display: flex; flex-direction: column; gap: 2px; }
+.stat-val { font-family: var(--font-head); font-size: 18px; font-weight: 800; color: #0B1C49; }
+.stat-key { font-size: 11px; color: #7A869E; text-transform: uppercase; letter-spacing: 0.06em; }
+</style></head><body>
+<div class="metric-card" style="--ac:#D64294"><div class="metric-val">12,847</div><div class="metric-label">Órdenes Totales</div></div>
+<div class="metric-card" style="--ac:#00C48C"><div class="metric-val">94.2%</div><div class="metric-label">Fill Rate</div></div>
+<div class="metric-card" style="--ac:#9F4F69"><div class="metric-val">18.3 min</div><div class="metric-label">Tiempo Promedio</div></div>
+<div class="metric-card" style="--ac:#4A90E2"><div class="metric-val">3</div><div class="metric-label">Locales Activos</div></div>
+<div class="card" style="margin-top: 0">
+  <div class="card-label">Resumen Beetrak</div>
+  <div class="stat-grid">
+    <div class="stat-item"><div class="stat-val">8,241</div><div class="stat-key">Entregados</div></div>
+    <div class="stat-item"><div class="stat-val">312</div><div class="stat-key">Pendientes</div></div>
+    <div class="stat-item"><div class="stat-val">84</div><div class="stat-key">No entregados</div></div>
+    <div class="stat-item"><div class="stat-val">41</div><div class="stat-key">Local</div></div>
+  </div>
+</div>
+</body></html>

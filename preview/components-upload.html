@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.zones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.file-zone { background: #fff; border: 1px dashed rgba(214,66,148,0.25); border-radius: 12px; padding: 20px; min-height: 130px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; }
+.file-zone::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: var(--ac); opacity: var(--ao, 0); }
+.file-zone.active { border-color: rgba(214,66,148,0.5); }
+.file-zone.active::before { --ao: 1; }
+.file-zone.done { border-color: rgba(0,196,140,0.3); border-style: solid; }
+.file-zone.done::before { --ac: #00C48C; --ao: 1; }
+.zone-header { display: flex; align-items: center; gap: 8px; }
+.tipo-badge { font-family: var(--font-head); font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 24px; border: 1px solid; letter-spacing: 0.04em; }
+.zone-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.zone-status { font-size: 12px; color: #3A4A6B; }
+.zone-hint { font-size: 10px; color: #7A869E; text-transform: uppercase; letter-spacing: 0.08em; }
+.spinner { width: 20px; height: 20px; border: 2px solid rgba(11,28,73,0.18); border-top-color: #D64294; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.check { font-size: 20px; color: #00C48C; }
+.upload-pill { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid rgba(214,66,148,0.3); border-radius: 10px; padding: 5px 10px; min-width: 180px; }
+.up-spinner { width: 12px; height: 12px; border: 2px solid rgba(214,66,148,0.3); border-top-color: #D64294; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+.up-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.up-name { font-size: 10px; font-weight: 700; color: #D64294; }
+.up-bar { height: 3px; background: rgba(11,28,73,0.08); border-radius: 2px; overflow: hidden; }
+.up-fill { height: 100%; background: #D64294; border-radius: 2px; width: 62%; }
+.up-pct { font-size: 9px; color: #7A869E; }
+</style></head><body>
+<div class="zones">
+  <div class="file-zone">
+    <div class="zone-header"><span class="tipo-badge" style="color:#D64294;border-color:rgba(214,66,148,0.4)">BEETRAK</span></div>
+    <div class="zone-body"><span class="zone-hint">Arrastra o haz clic</span><span class="zone-status" style="color:#7A869E">Excel / CSV</span></div>
+  </div>
+  <div class="file-zone active" style="--ac:#D64294">
+    <div class="zone-header"><span class="tipo-badge" style="color:#FF6B35;border-color:rgba(255,107,53,0.4)">PFA</span></div>
+    <div class="zone-body"><div class="spinner" style="border-top-color:#FF6B35"></div><span class="zone-status">Subiendo… 3/8 lotes</span></div>
+  </div>
+  <div class="file-zone done">
+    <div class="zone-header"><span class="tipo-badge" style="color:#00C48C;border-color:rgba(0,196,140,0.4)">DELIVERY</span></div>
+    <div class="zone-body"><span class="check">✓</span><span class="zone-status">12,847 filas cargadas</span></div>
+  </div>
+  <div class="file-zone" style="border-color:rgba(255,68,102,0.3);border-style:solid">
+    <div class="zone-header"><span class="tipo-badge" style="color:#FF4466;border-color:rgba(255,68,102,0.4)">BEETRAK</span></div>
+    <div class="zone-body"><span style="font-size:20px;color:#FF4466">✗</span><span class="zone-status" style="color:#FF4466">Error al procesar</span></div>
+  </div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+  <div class="upload-pill"><div class="up-spinner"></div><div class="up-info"><span class="up-name">BEETRAK · reporte_abril.xlsx</span><div class="up-bar"><div class="up-fill"></div></div><span class="up-pct">3/8 lotes · 62%</span></div></div>
+  <div class="upload-pill" style="border-color:rgba(255,107,53,0.3)"><div class="up-spinner" style="border-top-color:#FF6B35;border-color:rgba(255,107,53,0.3)"></div><div class="up-info"><span class="up-name" style="color:#FF6B35">PFA · picking_semana.csv</span><div class="up-bar"><div class="up-fill" style="background:#FF6B35;width:25%"></div></div><span class="up-pct">1/4 lotes · 25%</span></div></div>
+</div>
+</body></html>

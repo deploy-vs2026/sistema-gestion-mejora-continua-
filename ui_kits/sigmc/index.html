@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SIGMC — UI Kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Brand */
+  --pink:#D64294; --pink-dark:#A02D6E; --pink-subtle:#FBF0F7; --pink-light:#F0A0CC;
+  --navy:#0B1C49; --navy-light:#1E3A7A; --navy-muted:#3D5490; --navy-subtle:#EEF1F8;
+  --claret:#7E143A; --china:#9F4F69;
+  /* Surfaces */
+  --bg:#F0F2F8; --bg2:#FFFFFF; --bg3:#E8ECF6;
+  --border:rgba(11,28,73,0.10); --border2:rgba(11,28,73,0.18);
+  /* Text */
+  --text:#0B1C49; --text2:#3A4A6B; --text3:#7A869E;
+  /* Semantic */
+  --green:#00C48C; --green-dark:#1B8A5A;
+  --blue:#4A90E2; --red:#FF4466; --red-dark:#C0392B;
+  --orange:#FF6B35; --violet:#7C3AED;
+  /* Gradients */
+  --gradient:linear-gradient(135deg,#D64294,#7E143A);
+  /* Fonts */
+  --fh:'Montserrat',sans-serif; --fb:'Poppins',sans-serif;
+  /* Shadows */
+  --sh-sm:0 1px 4px rgba(11,28,73,0.10);
+  --sh-md:0 4px 16px rgba(11,28,73,0.14);
+  --sh-lg:0 8px 32px rgba(11,28,73,0.18);
+  --sh-pink:0 4px 20px rgba(214,66,148,0.30);
+}
+body{background:var(--bg);background-image:radial-gradient(ellipse at 15% 0%,rgba(42,68,148,0.10) 0%,transparent 55%),radial-gradient(ellipse at 85% 100%,rgba(214,66,148,0.05) 0%,transparent 45%);background-attachment:fixed;color:var(--text);font-family:var(--fb);font-weight:300;min-height:100vh;font-size:14px;line-height:1.5;}
+#root{min-height:100vh;display:flex;flex-direction:column;}
+
+/* ─── NAVBAR (dark navy — brand official) ─── */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:var(--navy);position:sticky;top:0;z-index:20;box-shadow:0 2px 16px rgba(11,28,73,0.25);}
+.navbar-left{display:flex;align-items:center;gap:22px;}
+.navbar-brand{font-family:var(--fh);font-size:16px;font-weight:800;letter-spacing:-0.02em;color:#fff;}
+.navbar-brand span{color:var(--pink);}
+.nav-links{display:flex;gap:2px;}
+.nav-link{font-family:var(--fh);font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;cursor:pointer;color:rgba(255,255,255,0.6);border:none;background:transparent;transition:all .15s;letter-spacing:0.02em;}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+.nav-link.active{color:#fff;background:rgba(214,66,148,0.25);border:1px solid rgba(214,66,148,0.4);}
+.navbar-right{display:flex;align-items:center;gap:14px;}
+.user-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.user-email{font-size:12px;color:rgba(255,255,255,0.75);font-family:var(--fb);font-weight:300;}
+.user-rol{font-family:var(--fh);font-size:10px;color:var(--pink);text-transform:uppercase;letter-spacing:.06em;font-weight:700;background:rgba(214,66,148,0.15);border:1px solid rgba(214,66,148,0.3);padding:1px 8px;border-radius:999px;}
+.logo-img{width:32px;height:32px;object-fit:contain;border-radius:6px;}
+.btn-nav-out{background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:5px 14px;font-family:var(--fh);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-nav-out:hover{color:#fff;border-color:rgba(255,255,255,0.4);}
+
+/* ─── BUTTONS ─── */
+.btn-primary{background:var(--pink);color:#fff;border:none;border-radius:999px;padding:10px 26px;font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:0.02em;}
+.btn-primary:hover:not(:disabled){background:var(--pink-dark);transform:translateY(-1px);box-shadow:var(--sh-pink);}
+.btn-primary:disabled{opacity:.38;cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid rgba(214,66,148,0.3);border-radius:999px;padding:9px 20px;font-family:var(--fh);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-ghost:hover{border-color:var(--pink);color:var(--pink);}
+.btn-export{background:transparent;color:var(--pink);border:1px solid rgba(214,66,148,0.3);border-radius:999px;padding:7px 16px;font-family:var(--fh);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-export:hover{background:rgba(214,66,148,0.07);border-color:var(--pink);}
+.btn-del{background:transparent;color:var(--red);border:1px solid rgba(255,68,102,0.25);border-radius:999px;padding:4px 12px;font-family:var(--fh);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-del:hover{background:rgba(255,68,102,0.07);}
+.btn-add{background:var(--pink);color:#fff;border:none;border-radius:999px;padding:9px 20px;font-family:var(--fh);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-add:hover{background:var(--pink-dark);}
+
+/* ─── PAGE ─── */
+.page-content{padding:32px;flex:1;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+.page-title-wrap{display:flex;flex-direction:column;gap:4px;}
+.page-title{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;padding-left:14px;border-left:3px solid var(--accent,var(--pink));}
+.page-sub{font-size:12px;color:var(--text3);padding-left:17px;font-family:var(--fb);}
+.page-actions{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+.section-label{font-family:var(--fh);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:12px;}
+
+/* ─── METRIC CARDS ─── */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:box-shadow .15s;}
+.metric-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,var(--pink));}
+.metric-card:hover{box-shadow:var(--sh-md);}
+.metric-val{font-family:var(--fh);font-size:28px;font-weight:800;color:var(--navy);line-height:1;}
+.metric-label{font-size:11px;color:var(--text3);margin-top:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--fh);font-weight:600;}
+.metric-delta{font-size:11px;margin-top:8px;font-family:var(--fb);}
+.metric-delta.up{color:var(--green-dark);}
+.metric-delta.dn{color:var(--red-dark);}
+
+/* ─── TABLE ─── */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh-sm);}
+.table-count{font-size:11px;color:var(--text3);padding:9px 16px;border-bottom:1px solid var(--border);font-family:var(--fb);display:flex;justify-content:space-between;align-items:center;}
+.table-scroll{overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;}
+.data-table thead{background:var(--bg);}
+.data-table th{padding:10px 14px;text-align:left;font-family:var(--fh);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:2px solid rgba(214,66,148,0.2);white-space:nowrap;}
+.data-table td{padding:9px 14px;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;font-family:var(--fb);font-weight:300;}
+.data-table tbody tr:nth-child(even) td{background:rgba(11,28,73,0.018);}
+.data-table tbody tr:hover td{background:rgba(214,66,148,0.04);}
+.data-table tbody tr:last-child td{border-bottom:none;}
+.table-msg{padding:48px;text-align:center;font-size:13px;color:var(--text3);font-family:var(--fb);}
+
+/* ─── ESTADO BADGE ─── */
+.estado{display:inline-flex;align-items:center;gap:5px;font-family:var(--fh);font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid;}
+.estado.entregado{color:#1B8A5A;background:rgba(27,138,90,0.08);border-color:rgba(27,138,90,0.25);}
+.estado.ruta{color:#4A90E2;background:rgba(74,144,226,0.08);border-color:rgba(74,144,226,0.25);}
+.estado.pendiente{color:#D98A00;background:rgba(217,138,0,0.08);border-color:rgba(217,138,0,0.25);}
+.estado.no-entregado{color:#C0392B;background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.25);}
+
+/* ─── PAGINATOR ─── */
+.paginator{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);background:var(--bg3);}
+.pag-info{font-size:11px;color:var(--text3);font-family:var(--fb);}
+.pag-controls{display:flex;align-items:center;gap:4px;}
+.pag-btn{background:var(--bg2);border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--fb);}
+.pag-btn:hover:not(:disabled){border-color:var(--pink);color:var(--pink);}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed;}
+.pag-page{font-size:11px;color:var(--text3);padding:0 10px;font-family:var(--fb);}
+
+/* ─── FILTERS ─── */
+.filter-group{display:flex;flex-direction:column;gap:4px;}
+.filter-group label{font-family:var(--fh);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);}
+.input-date,.input-text,.select-rol{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:7px 11px;font-family:var(--fb);font-size:12px;font-weight:300;color:var(--text);outline:none;transition:all .15s;}
+.input-date:focus,.input-text:focus,.select-rol:focus{border-color:var(--pink);box-shadow:0 0 0 2px rgba(214,66,148,0.15);}
+
+/* ─── FILE ZONES ─── */
+.zones-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.file-zone{background:var(--bg2);border:1px dashed rgba(214,66,148,0.22);border-radius:14px;padding:22px;cursor:pointer;transition:all .2s;min-height:148px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;box-shadow:var(--sh-sm);}
+.file-zone::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--fz-ac,var(--pink));opacity:0;transition:opacity .2s;}
+.file-zone:hover::before,.file-zone.fz-active::before{opacity:1;}
+.file-zone:hover{border-color:rgba(214,66,148,0.42);background:rgba(214,66,148,0.02);}
+.file-zone.fz-done{border-color:rgba(0,196,140,0.3);border-style:solid;}
+.file-zone.fz-done::before{--fz-ac:#00C48C;opacity:1;}
+.file-zone.fz-error{border-color:rgba(192,57,43,0.3);border-style:solid;}
+.zone-header{display:flex;align-items:center;gap:8px;}
+.tipo-badge{font-family:var(--fh);font-size:10px;font-weight:700;padding:3px 11px;border-radius:999px;border:1px solid;letter-spacing:.05em;}
+.zone-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;}
+.zone-icon{font-size:22px;opacity:.35;}
+.zone-hint{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;font-family:var(--fh);font-weight:600;}
+.zone-desc{font-size:11px;color:var(--text3);font-family:var(--fb);}
+.spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--pink);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ─── LOG PANEL ─── */
+.side-panel{display:flex;flex-direction:column;gap:20px;}
+.log-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh-sm);}
+.log-header{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);}
+.log-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.log-body{max-height:240px;overflow-y:auto;padding:4px 0;}
+.log-body::-webkit-scrollbar{width:3px;}
+.log-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.log-line{display:flex;gap:10px;padding:5px 16px;font-size:11px;border-bottom:1px solid var(--border);}
+.log-line:last-child{border-bottom:none;}
+.log-ts{color:var(--text3);flex-shrink:0;font-family:var(--fh);font-size:10px;font-weight:600;}
+.log-line.success .log-msg{color:var(--green-dark);}
+.log-line.error .log-msg{color:var(--red-dark);}
+.log-line.info .log-msg{color:var(--text2);}
+
+/* ─── MASTER LAYOUT ─── */
+.master-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;padding:32px;align-items:start;}
+.join-hint{background:rgba(74,144,226,0.07);border:1px dashed rgba(74,144,226,0.22);border-radius:10px;padding:9px 14px;font-size:12px;color:var(--blue);margin-bottom:18px;font-family:var(--fb);}
+
+/* ─── AUTH ─── */
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.auth-bg{position:fixed;inset:0;background:var(--navy);background-image:radial-gradient(ellipse at 20% 10%,rgba(214,66,148,0.18) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(30,58,122,0.6) 0%,transparent 50%);z-index:0;}
+.auth-card{position:relative;z-index:1;background:rgba(255,255,255,0.97);border:1px solid rgba(11,28,73,0.08);border-radius:22px;padding:48px 44px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;min-width:370px;box-shadow:0 24px 64px rgba(11,28,73,0.35);animation:slideUp .35s ease;}
+.auth-logo{width:80px;height:80px;object-fit:contain;border-radius:14px;}
+.auth-card h1{font-family:var(--fh);font-size:28px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em;}
+.auth-tagline{font-size:13px;color:var(--text2);font-family:var(--fb);font-weight:300;max-width:240px;line-height:1.5;}
+.divider-line{width:100%;height:1px;background:var(--border);margin:2px 0;}
+.btn-google{display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a1a;border:1px solid rgba(11,28,73,0.12);border-radius:999px;padding:13px 28px;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.btn-google:hover{background:#F8F8FC;transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.10);}
+.auth-hint{font-size:11px;color:var(--text3);font-family:var(--fb);}
+
+/* ─── ADMIN ─── */
+.admin-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden;box-shadow:var(--sh-sm);}
+.admin-section-header{padding:12px 20px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);background:var(--bg);}
+.admin-add-form{padding:16px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+.flash-msg{font-size:12px;padding:8px 16px;border-radius:999px;font-family:var(--fb);}
+.flash-msg.ok{background:rgba(27,138,90,.1);color:var(--green-dark);border:1px solid rgba(27,138,90,.2);}
+.flash-msg.err{background:rgba(192,57,43,.1);color:var(--red-dark);border:1px solid rgba(192,57,43,.2);}
+
+/* ─── TOAST ─── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--navy);color:#fff;font-family:var(--fb);font-size:13px;padding:12px 18px;border-radius:10px;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:10px;animation:slideUp .2s ease;min-width:240px;}
+.toast.ok{border-left:4px solid var(--green-dark);}
+.toast.err{border-left:4px solid var(--red-dark);}
+
+/* ─── TWEAKS ─── */
+.tweak-panel{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;width:220px;box-shadow:var(--sh-lg);z-index:50;display:none;}
+.tweak-panel.open{display:block;animation:fadeIn .2s ease;}
+.tweak-title{font-family:var(--fh);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ── Mock data ── */
+const BEETRAK = [
+  {orden:"ORD-001234",local:"41",estado:"Entregado",tipo:"LAT",fecha:"2026-04-16",rep:"Juan Pérez",int:1},
+  {orden:"ORD-001235",local:"42",estado:"En ruta",tipo:"HD",fecha:"2026-04-16",rep:"María López",int:1},
+  {orden:"ORD-001236",local:"41",estado:"Pendiente",tipo:"LAT",fecha:"2026-04-17",rep:"—",int:0},
+  {orden:"ORD-001237",local:"54",estado:"No entregado",tipo:"HD",fecha:"2026-04-17",rep:"Carlos Ruiz",int:2},
+  {orden:"ORD-001238",local:"75",estado:"Entregado",tipo:"LAT",fecha:"2026-04-17",rep:"Ana Torres",int:1},
+  {orden:"ORD-001239",local:"41",estado:"Entregado",tipo:"LAT",fecha:"2026-04-18",rep:"Juan Pérez",int:1},
+];
+const PFA = [
+  {sg:"SG-88821",local:"41",tipo:"LAT",rol:"Shopper",inicio:"09:12",fin:"09:34",min:22,sol:18,pick:17},
+  {sg:"SG-88822",local:"42",tipo:"PU",rol:"Picker",inicio:"10:05",fin:"10:29",min:24,sol:12,pick:12},
+  {sg:"SG-88823",local:"54",tipo:"HD",rol:"Shopper",inicio:"08:50",fin:"09:18",min:28,sol:24,pick:22},
+  {sg:"SG-88824",local:"41",tipo:"LAT",rol:"Picker",inicio:"11:30",fin:"11:52",min:22,sol:10,pick:10},
+];
+const USERS_INIT = [
+  {correo:"admin@valdishopper.com",rol:"admin"},
+  {correo:"ana.garcia@valdishopper.com",rol:"finanzas"},
+  {correo:"pedro.soto@valdishopper.com",rol:"mejora"},
+  {correo:"lucia.mora@valdishopper.com",rol:"master"},
+];
+
+/* ── Helpers ── */
+function EstadoBadge({estado}) {
+  const map = {
+    "Entregado":"entregado","En ruta":"ruta",
+    "Pendiente":"pendiente","No entregado":"no-entregado"
+  };
+  return <span className={`estado ${map[estado]||""}`}>{estado}</span>;
+}
+
+function Paginator({total, page, perPage, setPage}) {
+  const pages = Math.max(1, Math.ceil(total/perPage));
+  return (
+    <div className="paginator">
+      <span className="pag-info">Mostrando {Math.min(perPage,total)} de {total.toLocaleString()} registros</span>
+      <div className="pag-controls">
+        <button className="pag-btn" disabled={page<=1} onClick={()=>setPage(p=>p-1)}>‹ Anterior</button>
+        <span className="pag-page">{page} / {pages}</span>
+        <button className="pag-btn" disabled={page>=pages} onClick={()=>setPage(p=>p+1)}>Siguiente ›</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Navbar ── */
+function Navbar({page, setPage}) {
+  const links = [
+    {id:"master",label:"Carga de Datos"},
+    {id:"mejora",label:"Mejora Continua"},
+    {id:"finanzas",label:"Finanzas"},
+    {id:"geosort",label:"Geosort"},
+    {id:"admin",label:"Admin"},
+  ];
+  return (
+    <nav className="navbar">
+      <div className="navbar-left">
+        <img src="../../assets/logo-valdishopper.png" className="logo-img" alt="Logo" />
+        <span className="navbar-brand">SIGMC</span>
+        <div className="nav-links">
+          {links.map(l=>(
+            <button key={l.id} className={`nav-link ${page===l.id?"active":""}`} onClick={()=>setPage(l.id)}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="navbar-right">
+        <div className="user-info">
+          <span className="user-email">admin@valdishopper.com</span>
+          <span className="user-rol">admin</span>
+        </div>
+        <button className="btn-nav-out" onClick={()=>setPage("login")}>Salir</button>
+      </div>
+    </nav>
+  );
+}
+
+/* ── Login ── */
+function Login({onLogin}) {
+  return (
+    <div className="auth-screen">
+      <div className="auth-bg" />
+      <div className="auth-card">
+        <img src="../../assets/logo-valdishopper.png" className="auth-logo" alt="Logo" />
+        <h1>SIGMC</h1>
+        <p className="auth-tagline">Sistema de Gestión de Mejora Continua · Valdishopper SpA</p>
+        <div className="divider-line" />
+        <button className="btn-google" onClick={onLogin}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+            <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/>
+            <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/>
+            <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.31z"/>
+          </svg>
+          Iniciar sesión con Google
+        </button>
+        <p className="auth-hint">Solo cuentas @valdishopper.com</p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Master ── */
+function FileZone({label,color,state,onClick}) {
+  const s = {
+    idle: {cls:"",icon:"📂",body:<><span className="zone-hint">Arrastra o haz clic</span><span className="zone-desc">Excel / CSV</span></>},
+    loading:{cls:"fz-active",icon:null,body:<><div className="spinner" style={{borderTopColor:color}}/><span className="zone-desc">Procesando… 3/8 lotes</span></>},
+    done:{cls:"fz-done",icon:null,body:<><span style={{fontSize:22,color:"#1B8A5A"}}>✓</span><span className="zone-desc" style={{color:"#1B8A5A",fontWeight:600}}>12,847 filas cargadas</span></>},
+    error:{cls:"fz-error",icon:null,body:<><span style={{fontSize:22,color:"#C0392B"}}>✗</span><span className="zone-desc" style={{color:"#C0392B"}}>Error al procesar</span></>},
+  }[state]||{};
+  return (
+    <div className={`file-zone ${s.cls}`} style={{"--fz-ac":color}} onClick={state==="idle"?onClick:undefined}>
+      <div className="zone-header">
+        <span className="tipo-badge" style={{color,borderColor:color+"55"}}>{label}</span>
+      </div>
+      <div className="zone-body">{s.icon&&<span className="zone-icon">{s.icon}</span>}{s.body}</div>
+    </div>
+  );
+}
+
+function Master() {
+  const [zones,setZones]=useState({beetrak:"idle",pfa:"idle",delivery:"idle",geosort:"idle"});
+  const [log,setLog]=useState([
+    {type:"info",ts:"09:12:04",msg:"Sistema listo"},
+    {type:"success",ts:"09:12:06",msg:"Conexión BigQuery establecida"},
+  ]);
+  const drop=(key,label)=>{
+    setZones(z=>({...z,[key]:"loading"}));
+    setLog(l=>[{type:"info",ts:new Date().toTimeString().slice(0,8),msg:`Leyendo ${label}…`},...l]);
+    setTimeout(()=>{
+      setZones(z=>({...z,[key]:"done"}));
+      setLog(l=>[{type:"success",ts:new Date().toTimeString().slice(0,8),msg:`${label}: 12,847 filas insertadas en BigQuery`},...l]);
+    },2000);
+  };
+  return (
+    <div className="master-layout">
+      <div>
+        <div className="section-label">Fuentes de datos</div>
+        <div className="join-hint">Beetrak y PFA se combinan automáticamente por número de orden (shipping_group ↔ orden).</div>
+        <div className="zones-grid">
+          <FileZone label="BEETRAK" color="#00C48C" state={zones.beetrak} onClick={()=>drop("beetrak","Beetrak")}/>
+          <FileZone label="PFA" color="#FF6B35" state={zones.pfa} onClick={()=>drop("pfa","PFA")}/>
+          <FileZone label="DELIVERY" color="#A78BFA" state={zones.delivery} onClick={()=>drop("delivery","Delivery")}/>
+          <FileZone label="GEOSORT" color="#7C3AED" state={zones.geosort} onClick={()=>drop("geosort","Geosort")}/>
+        </div>
+        <div style={{display:"flex",gap:12}}>
+          <button className="btn-primary">Procesar todo</button>
+          <button className="btn-ghost" onClick={()=>setZones({beetrak:"idle",pfa:"idle",delivery:"idle",geosort:"idle"})}>Limpiar</button>
+        </div>
+      </div>
+      <div className="side-panel">
+        <div className="log-panel">
+          <div className="log-header"><span className="log-dot"/>Registro de actividad</div>
+          <div className="log-body">
+            {log.map((l,i)=>(
+              <div key={i} className={`log-line ${l.type}`}>
+                <span className="log-ts">{l.ts}</span>
+                <span className="log-msg">{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Mejora ── */
+function Mejora() {
+  const [desde,setDesde]=useState("2026-04-01");
+  const [hasta,setHasta]=useState("2026-04-22");
+  const [local,setLocal]=useState("todos");
+  const [loaded,setLoaded]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const buscar=()=>{setLoading(true);setTimeout(()=>{setLoaded(true);setLoading(false);},700);};
+  return (
+    <div className="page-content" style={{"--accent":"var(--china)"}}>
+      <div className="page-header">
+        <div className="page-title-wrap">
+          <h2 className="page-title" style={{borderLeftColor:"var(--china)"}}>Mejora Continua</h2>
+          <p className="page-sub">Beetrak + PFA · {desde} → {hasta}</p>
+        </div>
+        <div className="page-actions">
+          <div className="filter-group"><label>Desde</label><input className="input-date" type="date" value={desde} onChange={e=>setDesde(e.target.value)}/></div>
+          <div className="filter-group"><label>Hasta</label><input className="input-date" type="date" value={hasta} onChange={e=>setHasta(e.target.value)}/></div>
+          <div className="filter-group"><label>Local</label>
+            <select className="select-rol" value={local} onChange={e=>setLocal(e.target.value)}>
+              <option value="todos">Todos</option><option value="41">41</option><option value="42">42</option><option value="54">54</option>
+            </select>
+          </div>
+          <button className="btn-primary" style={{background:"var(--china)"}} onClick={buscar} disabled={loading}>{loading?"Buscando…":"Buscar"}</button>
+          {loaded&&<button className="btn-export">Exportar Excel</button>}
+        </div>
+      </div>
+      {loaded&&<div style={{animation:"fadeIn .3s ease"}}>
+        <div className="metrics-grid">
+          <div className="metric-card" style={{"--ac":"var(--china)"}}><div className="metric-val">12,847</div><div className="metric-label">Órdenes Beetrak</div><div className="metric-delta up">↑ 3.2% vs semana anterior</div></div>
+          <div className="metric-card" style={{"--ac":"var(--green)"}}><div className="metric-val">94.2%</div><div className="metric-label">Fill Rate PFA</div><div className="metric-delta up">↑ 1.1%</div></div>
+          <div className="metric-card" style={{"--ac":"var(--blue)"}}><div className="metric-val">18.3 min</div><div className="metric-label">Prom. Picking</div><div className="metric-delta dn">↓ 2.4 min</div></div>
+          <div className="metric-card" style={{"--ac":"var(--orange)"}}><div className="metric-val">8,241</div><div className="metric-label">Entregados</div></div>
+        </div>
+        <div className="section-label">Detalle Beetrak</div>
+        <div className="table-wrap">
+          <div className="table-count"><span>Mostrando 6 de <strong>12,847</strong> registros</span><button className="btn-export">Exportar Excel</button></div>
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>Orden</th><th>Local</th><th>Estado</th><th>Tipo</th><th>Fecha</th><th>Repartidor</th><th>Intentos</th></tr></thead>
+              <tbody>{BEETRAK.map((r,i)=><tr key={i}><td>{r.orden}</td><td>{r.local}</td><td><EstadoBadge estado={r.estado}/></td><td>{r.tipo}</td><td>{r.fecha}</td><td>{r.rep}</td><td>{r.int}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <Paginator total={12847} page={1} perPage={6} setPage={()=>{}}/>
+        </div>
+      </div>}
+      {!loaded&&<div className="table-msg">Selecciona un rango de fechas y haz clic en <strong>Buscar</strong></div>}
+    </div>
+  );
+}
+
+/* ── Finanzas ── */
+function Finanzas() {
+  const [desde,setDesde]=useState("2026-04-01");
+  const [hasta,setHasta]=useState("2026-04-22");
+  const [loaded,setLoaded]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const buscar=()=>{setLoading(true);setTimeout(()=>{setLoaded(true);setLoading(false);},650);};
+  return (
+    <div className="page-content">
+      <div className="page-header">
+        <div className="page-title-wrap">
+          <h2 className="page-title">Finanzas</h2>
+          <p className="page-sub">PFA Finanzas · BigQuery</p>
+        </div>
+        <div className="page-actions">
+          <div className="filter-group"><label>Desde</label><input className="input-date" type="date" value={desde} onChange={e=>setDesde(e.target.value)}/></div>
+          <div className="filter-group"><label>Hasta</label><input className="input-date" type="date" value={hasta} onChange={e=>setHasta(e.target.value)}/></div>
+          <button className="btn-primary" onClick={buscar} disabled={loading}>{loading?"Buscando…":"Buscar"}</button>
+          {loaded&&<button className="btn-export">Exportar Excel</button>}
+        </div>
+      </div>
+      {loaded&&<div style={{animation:"fadeIn .3s ease"}}>
+        <div className="metrics-grid">
+          <div className="metric-card" style={{"--ac":"var(--pink)"}}><div className="metric-val">8,320</div><div className="metric-label">Registros PFA</div></div>
+          <div className="metric-card" style={{"--ac":"var(--green)"}}><div className="metric-val">7,941</div><div className="metric-label">Ítems a pagar</div><div className="metric-delta up">↑ 95.4% eficiencia</div></div>
+          <div className="metric-card" style={{"--ac":"var(--orange)"}}><div className="metric-val">12</div><div className="metric-label">Dobles pedidos</div><div className="metric-delta dn">↓ 3 vs período anterior</div></div>
+        </div>
+        <div className="table-wrap">
+          <div className="table-count"><span>Mostrando 4 de <strong>8,320</strong> registros</span><button className="btn-export">Exportar Excel</button></div>
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>Shipping Group</th><th>Local</th><th>Tipo</th><th>Rol</th><th>Inicio</th><th>Min Pick</th><th>Sol</th><th>Pick</th></tr></thead>
+              <tbody>{PFA.map((r,i)=><tr key={i}><td>{r.sg}</td><td>{r.local}</td><td>{r.tipo}</td><td>{r.rol}</td><td>{r.inicio}</td><td>{r.min}</td><td>{r.sol}</td><td>{r.pick}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <Paginator total={8320} page={1} perPage={4} setPage={()=>{}}/>
+        </div>
+      </div>}
+      {!loaded&&<div className="table-msg">Selecciona un rango de fechas y haz clic en <strong>Buscar</strong></div>}
+    </div>
+  );
+}
+
+/* ── Admin ── */
+function Admin() {
+  const [users,setUsers]=useState(USERS_INIT);
+  const [email,setEmail]=useState("");
+  const [rol,setRol]=useState("mejora");
+  const [flash,setFlash]=useState(null);
+  const [toasts,setToasts]=useState([]);
+  const addToast=(type,msg)=>{
+    const id=Date.now();
+    setToasts(t=>[...t,{id,type,msg}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3000);
+  };
+  const showFlash=(type,msg)=>{setFlash({type,msg});setTimeout(()=>setFlash(null),3000);};
+  const add=()=>{
+    if(!email.includes("@valdishopper.com")){addToast("err","Solo cuentas @valdishopper.com");return;}
+    setUsers(u=>[...u,{correo:email,rol}]);setEmail("");
+    addToast("ok","Usuario agregado correctamente");
+  };
+  const del=(correo)=>{setUsers(u=>u.filter(x=>x.correo!==correo));addToast("ok","Usuario eliminado");};
+  const changeRol=(correo,r)=>setUsers(u=>u.map(x=>x.correo===correo?{...x,rol:r}:x));
+  return (
+    <div className="page-content" style={{"--accent":"var(--text3)"}}>
+      <div className="page-header">
+        <div className="page-title-wrap">
+          <h2 className="page-title" style={{borderLeftColor:"var(--text3)"}}>Administración</h2>
+          <p className="page-sub">Gestión de usuarios y roles</p>
+        </div>
+        {flash&&<span className={`flash-msg ${flash.type}`}>{flash.msg}</span>}
+      </div>
+      <div className="admin-section">
+        <div className="admin-section-header">Agregar usuario</div>
+        <div className="admin-add-form">
+          <div className="filter-group"><label>Correo</label>
+            <input className="input-text" style={{width:270}} value={email} onChange={e=>setEmail(e.target.value)} placeholder="nombre@valdishopper.com"/>
+          </div>
+          <div className="filter-group"><label>Rol</label>
+            <select className="select-rol" value={rol} onChange={e=>setRol(e.target.value)}>
+              <option value="admin">admin</option><option value="master">master</option>
+              <option value="finanzas">finanzas</option><option value="mejora">mejora</option>
+            </select>
+          </div>
+          <button className="btn-add" onClick={add}>Agregar</button>
+        </div>
+      </div>
+      <div className="admin-section">
+        <div className="admin-section-header">Usuarios registrados ({users.length})</div>
+        <table className="data-table">
+          <thead><tr><th>Correo</th><th>Rol</th><th></th></tr></thead>
+          <tbody>{users.map((u,i)=>(
+            <tr key={i}>
+              <td>{u.correo}</td>
+              <td><select className="select-rol" style={{fontSize:11}} value={u.rol} onChange={e=>changeRol(u.correo,e.target.value)}>
+                <option value="admin">admin</option><option value="master">master</option>
+                <option value="finanzas">finanzas</option><option value="mejora">mejora</option>
+              </select></td>
+              <td><button className="btn-del" onClick={()=>del(u.correo)}>Eliminar</button></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <div className="toast-container">
+        {toasts.map(t=><div key={t.id} className={`toast ${t.type}`}>{t.type==="ok"?"✓":"✕"} {t.msg}</div>)}
+      </div>
+    </div>
+  );
+}
+
+/* ── Geosort ── */
+function Geosort() {
+  const [loading,setLoading]=useState(false);
+  const [done,setDone]=useState(false);
+  return (
+    <div className="page-content">
+      <div className="page-header">
+        <div className="page-title-wrap">
+          <h2 className="page-title" style={{borderLeftColor:"var(--violet)"}}>Geosort · Falabella</h2>
+          <p className="page-sub">Datos scrapeados desde Geosort · disponible los lunes</p>
+        </div>
+      </div>
+      <div style={{background:"rgba(124,58,237,0.05)",border:"1px dashed rgba(124,58,237,0.25)",borderRadius:14,padding:32,textAlign:"center",maxWidth:480}}>
+        <p style={{fontFamily:"var(--fh)",fontWeight:800,fontSize:16,color:"var(--violet)",marginBottom:8}}>Panel Geosort</p>
+        <p style={{fontSize:12,color:"var(--text3)",fontFamily:"var(--fb)",marginBottom:24}}>El scraper corre automáticamente los domingos a las 01:00 UTC. Los lunes, presiona el botón para cargar los datos procesados en BigQuery.</p>
+        {done
+          ? <div style={{color:"var(--green-dark)",fontFamily:"var(--fh)",fontWeight:700,fontSize:14}}>✓ Datos cargados — 3 archivos · 847 rutas insertadas</div>
+          : <button className="btn-primary" style={{background:"var(--violet)"}} onClick={()=>{setLoading(true);setTimeout(()=>{setLoading(false);setDone(true);},1800);}}>
+              {loading?<span style={{display:"flex",alignItems:"center",gap:8}}><span className="spinner" style={{borderTopColor:"#fff",width:14,height:14}}/>Cargando…</span>:"Cargar datos Geosort"}
+            </button>}
+      </div>
+    </div>
+  );
+}
+
+/* ── Tweaks ── */
+function TweakPanel({open}) {
+  return (
+    <div className={`tweak-panel ${open?"open":""}`}>
+      <div className="tweak-title">Tweaks</div>
+      <p style={{fontSize:11,color:"var(--text3)",lineHeight:1.6,fontFamily:"var(--fb)"}}>
+        Navega con el menú superior. Haz clic en las zonas de archivo para simular una carga de datos.
+        En Admin, agrega o elimina usuarios (mock).
+      </p>
+    </div>
+  );
+}
+
+/* ── App ── */
+const INIT_PAGE = localStorage.getItem("sigmc_page") || "login";
+
+function App() {
+  const [page,setPage]=useState(INIT_PAGE);
+  const [authed,setAuthed]=useState(INIT_PAGE!=="login");
+  const [tweakOpen,setTweakOpen]=useState(false);
+
+  useEffect(()=>{localStorage.setItem("sigmc_page",page);},[page]);
+  useEffect(()=>{
+    window.addEventListener("message",e=>{
+      if(e.data?.type==="__activate_edit_mode") setTweakOpen(true);
+      if(e.data?.type==="__deactivate_edit_mode") setTweakOpen(false);
+    });
+    window.parent.postMessage({type:"__edit_mode_available"},"*");
+  },[]);
+
+  const nav=(p)=>{ if(p==="login"){setAuthed(false);setPage("login");} else setPage(p); };
+  const login=()=>{setAuthed(true);setPage("master");};
+
+  if(!authed) return <><Login onLogin={login}/><TweakPanel open={tweakOpen}/></>;
+
+  const pages={master:<Master/>,mejora:<Mejora/>,finanzas:<Finanzas/>,admin:<Admin/>,geosort:<Geosort/>};
+  return (
+    <>
+      <Navbar page={page} setPage={nav}/>
+      {pages[page]||<Master/>}
+      <TweakPanel open={tweakOpen}/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

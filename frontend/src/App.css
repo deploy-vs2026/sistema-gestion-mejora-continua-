@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Poppins:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,9 +18,16 @@
   --blue:      #4A90E2;
   --red:       #FF4466;
   --orange:    #FF6B35;
+  --violet:    #7C3AED;
+  --navy:      #0B1C49;
   --font-head: 'Montserrat', sans-serif;
   --font-body: 'Poppins', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --gradient:  linear-gradient(135deg, #D64294, #7E143A);
+  --shadow-card:  0 8px 40px rgba(11,28,73,0.08);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.25);
+  --shadow-btn:   0 4px 20px rgba(214,66,148,0.30);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px; --radius-full:24px;
 }
 
 body { background: var(--bg); background-image: radial-gradient(ellipse at 20% 0%, rgba(42,68,148,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(214,66,148,0.06) 0%, transparent 50%); background-attachment: fixed; color: var(--text); font-family: var(--font-body); font-weight: 300; min-height: 100vh; font-size: 14px; line-height: 1.5; }
@@ -124,22 +131,31 @@ body { background: var(--bg); background-image: radial-gradient(ellipse at 20% 0
   .nav-links { flex-wrap:wrap; }
 }
 
-/* NAVBAR */
-.navbar { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:60px; background:var(--bg); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; }
-.navbar-left { display:flex; align-items:center; gap:24px; }
-.navbar-brand { font-family:var(--font-head); font-size:16px; font-weight:800; letter-spacing:-0.02em; }
-.nav-links { display:flex; gap:2px; }
-.nav-link { font-family:var(--font-head); font-size:12px; font-weight:700; padding:6px 14px; border-radius:24px; text-decoration:none; color:var(--text2); transition:all .15s; }
-.nav-link:hover { color:var(--text); background:rgba(11,28,73,0.05); }
-.nav-link.active { color:var(--link-color, var(--pink)); background:rgba(214,66,148,0.1); }
-.navbar-right { display:flex; align-items:center; gap:12px; }
-.user-info { display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
-.user-email { font-size:12px; color:var(--text); font-weight:400; }
-.user-rol { font-family:var(--font-head); font-size:10px; color:var(--pink); text-transform:uppercase; letter-spacing:.06em; font-weight:700; background:rgba(214,66,148,0.08); padding:1px 8px; border-radius:24px; }
-.btn-ghost.small { padding:6px 14px; font-size:11px; border-radius:24px; }
+/* NAVBAR — dark navy (Brand Kit oficial) */
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: var(--navy, #0B1C49);
+  border-bottom: none; position: sticky; top: 0; z-index: 20;
+  box-shadow: 0 2px 16px rgba(11,28,73,0.25);
+}
+.navbar-left  { display: flex; align-items: center; gap: 22px; }
+.navbar-right { display: flex; align-items: center; gap: 14px; }
+.logo-img { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; }
+.navbar-brand { font-family: var(--font-head); font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; }
+.nav-links { display: flex; gap: 2px; }
+.nav-link { font-family: var(--font-head); font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 24px; text-decoration: none; color: rgba(255,255,255,0.60); transition: all .15s; letter-spacing: 0.02em; }
+.nav-link:hover { color: #ffffff; background: rgba(255,255,255,0.08); }
+.nav-link.active { color: #ffffff; background: rgba(214,66,148,0.22); border: 1px solid rgba(214,66,148,0.40); }
+.navbar-right { display: flex; align-items: center; gap: 14px; }
+.user-info  { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.user-email { font-size: 12px; color: rgba(255,255,255,0.75); font-family: var(--font-body); font-weight: 300; }
+.user-rol { font-family: var(--font-head); font-size: 10px; color: var(--pink); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; background: rgba(214,66,148,0.15); border: 1px solid rgba(214,66,148,0.30); padding: 1px 8px; border-radius: 24px; }
+.btn-nav-out { background: transparent; color: rgba(255,255,255,0.60); border: 1px solid rgba(255,255,255,0.20); border-radius: 24px; padding: 5px 14px; font-family: var(--font-head); font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.btn-nav-out:hover { color: #ffffff; border-color: rgba(255,255,255,0.40); }
 
 /* UPLOAD PILL (Navbar) */
-.upload-pill { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.04); border:1px solid color-mix(in srgb, var(--up-color) 30%, transparent); border-radius:10px; padding:5px 10px; min-width:160px; max-width:220px; }
+.upload-pill { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06); border:1px solid color-mix(in srgb, var(--up-color) 35%, transparent); border-radius:10px; padding:5px 10px; min-width:160px; max-width:220px; }
 .upload-spinner { width:12px; height:12px; border:2px solid color-mix(in srgb, var(--up-color) 30%, transparent); border-top-color:var(--up-color); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
 .upload-pill-info { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; }
 .upload-pill-name { font-size:10px; font-weight:700; color:var(--up-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

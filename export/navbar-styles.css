@@ -1,0 +1,117 @@
+/* ============================================================
+   SIGMC — Navbar dark navy (Brand Kit oficial)
+   Reemplaza el bloque /* NAVBAR */ en App.css
+   ============================================================ */
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  /* ▼ CAMBIO: fondo navy en lugar de --bg claro */
+  background: var(--navy, #0B1C49);
+  border-bottom: none;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 2px 16px rgba(11, 28, 73, 0.25);
+}
+
+.navbar-left  { display: flex; align-items: center; gap: 22px; }
+.navbar-right { display: flex; align-items: center; gap: 14px; }
+
+.logo-img { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; }
+
+/* Nombre de marca — blanco sobre navy */
+.navbar-brand {
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+/* Links de navegación */
+.nav-links { display: flex; gap: 2px; }
+
+.nav-link {
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 24px;
+  text-decoration: none;
+  /* ▼ CAMBIO: texto blanco semitransparente en lugar de --text2 */
+  color: rgba(255, 255, 255, 0.60);
+  transition: all .15s;
+  letter-spacing: 0.02em;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-link.active {
+  /* ▼ CAMBIO: activo con fondo pink sutil + borde pink en lugar de fondo rosa claro */
+  color: #ffffff;
+  background: rgba(214, 66, 148, 0.22);
+  border: 1px solid rgba(214, 66, 148, 0.40);
+}
+
+/* Info de usuario */
+.user-info  { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+.user-email {
+  font-size: 12px;
+  /* ▼ CAMBIO: blanco semitransparente en lugar de --text */
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-body);
+  font-weight: 300;
+}
+
+.user-rol {
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--pink);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 700;
+  background: rgba(214, 66, 148, 0.15);
+  border: 1px solid rgba(214, 66, 148, 0.30);
+  padding: 1px 8px;
+  border-radius: 24px;
+}
+
+/* Botón Salir — reemplaza .btn-ghost.small en el navbar */
+.btn-nav-out {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 24px;
+  padding: 5px 14px;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-nav-out:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.40);
+}
+
+/* Upload pills (sin cambios — solo ajuste de borde para contraste sobre navy) */
+.upload-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid color-mix(in srgb, var(--up-color) 35%, transparent);
+  border-radius: 10px;
+  padding: 5px 10px;
+  min-width: 160px;
+  max-width: 220px;
+}

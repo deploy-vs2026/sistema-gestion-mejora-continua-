@@ -7,8 +7,8 @@ const NAV_ITEMS = [
   { path: "/master",    view: "master",    label: "Carga de Datos",  color: "var(--green)" },
   { path: "/finanzas",  view: "finanzas",  label: "Finanzas",        color: "var(--pink)"  },
   { path: "/mejora",    view: "mejora",    label: "Mejora Continua", color: "var(--china)" },
-  { path: "/falabella", view: "falabella", label: "Geosort",         color: "#7C3AED"      },
-  { path: "/admin",     view: "admin",     label: "Admin",           color: "rgba(255,255,255,0.6)" },
+  { path: "/falabella", view: "falabella", label: "Geosort",         color: "#A78BFA"      },
+  { path: "/admin",     view: "admin",     label: "Admin",           color: "rgba(255,255,255,0.5)" },
 ];
 
 const UPLOAD_COLOR = { beetrak: "#00E5C3", pfa: "#FF6B35", pfa_delivery: "#A78BFA", falabella: "#7C3AED" };
@@ -75,7 +75,7 @@ export default function Navbar() {
           <span className="user-email">{user?.displayName || user?.email}</span>
           <span className="user-rol">{rol}</span>
         </div>
-        <button className="btn-ghost small" onClick={logout}>Salir</button>
+        <button className="btn-nav-out" onClick={logout}>Salir</button>
       </div>
     </nav>
   );

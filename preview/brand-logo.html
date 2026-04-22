@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 20px; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.logo-block { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.lbl { font-family: var(--font-head); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7A869E; margin-bottom: 4px; }
+img.lg { width: 80px; height: 80px; object-fit: contain; border-radius: 12px; }
+img.sm { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; }
+img.xs { width: 28px; height: 28px; object-fit: contain; }
+.logo-mark { width: 48px; height: 48px; background: linear-gradient(135deg, #D64294, #7E143A); clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.brand-title { font-family: var(--font-head); font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #D64294, #7E143A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em; }
+.inline-brand { display: flex; align-items: center; gap: 10px; }
+</style></head><body>
+<div class="logo-block">
+  <div class="lbl">Valdishopper Logo</div>
+  <img src="../assets/logo-valdishopper.png" alt="Logo" class="lg" />
+  <img src="../assets/logo-valdishopper.png" alt="Logo" class="sm" />
+  <img src="../assets/logo-valdishopper.png" alt="Logo" class="xs" />
+</div>
+<div class="logo-block">
+  <div class="lbl">CSS Logo Mark (fallback)</div>
+  <div class="logo-mark"></div>
+</div>
+<div class="logo-block">
+  <div class="lbl">Brand Title</div>
+  <div class="brand-title">SIGMC</div>
+  <div class="inline-brand">
+    <img src="../assets/logo-valdishopper.png" alt="Logo" class="xs" />
+    <span style="font-family:var(--font-head);font-size:16px;font-weight:800;color:#0B1C49;letter-spacing:-0.02em;">SIGMC</span>
+  </div>
+</div>
+</body></html>

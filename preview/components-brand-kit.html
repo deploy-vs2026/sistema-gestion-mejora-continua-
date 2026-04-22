@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #F5F6FA; font-family: 'Montserrat', sans-serif; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8A94A8; min-width: 80px; }
+button { cursor: pointer; transition: all 0.18s; }
+/* brand kit buttons */
+.vs-btn-p { background: #D64294; color: #fff; font-family: 'Montserrat'; font-weight: 700; font-size: 13px; padding: 10px 24px; border: none; border-radius: 999px; letter-spacing: 0.3px; }
+.vs-btn-s { background: transparent; color: #0B1C49; font-family: 'Montserrat'; font-weight: 700; font-size: 13px; padding: 10px 24px; border: 1.5px solid #0B1C49; border-radius: 999px; }
+.vs-btn-s:hover { background: #EEF1F8; }
+/* badges */
+.badge-pink { background: #FBF0F7; color: #A02D6E; font-family: 'Poppins'; font-size: 12px; font-weight: 400; padding: 3px 10px; border-radius: 999px; }
+.badge-navy { background: #EEF1F8; color: #0B1C49; font-family: 'Poppins'; font-size: 12px; font-weight: 400; padding: 3px 10px; border-radius: 999px; }
+/* toast */
+.toast { background: #0B1C49; color: #fff; font-family: 'Poppins'; font-size: 13px; padding: 12px 18px; border-radius: 10px; box-shadow: 0 4px 16px rgba(11,28,73,0.14); display: inline-flex; align-items: center; gap: 10px; }
+.toast.ok { border-left: 4px solid #1B8A5A; }
+.toast.err { border-left: 4px solid #C0392B; }
+/* card */
+.vs-card { background: #fff; border: 0.5px solid #D0D5E8; border-radius: 16px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(11,28,73,0.1); font-family: 'Poppins'; min-width: 180px; }
+.vs-card-title { font-family: 'Montserrat'; font-size: 14px; font-weight: 800; color: #0B1C49; margin-bottom: 4px; letter-spacing: -0.01em; }
+.vs-card-sub { font-size: 12px; color: #8A94A8; font-weight: 300; }
+/* header */
+.vs-hdr { background: #0B1C49; padding: 12px 20px; border-radius: 10px; display: flex; align-items: center; gap: 12px; }
+.vs-hdr-brand { font-family: 'Montserrat'; font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+</style></head><body>
+<div class="row"><div class="lbl">Botones</div>
+  <button class="vs-btn-p">Acción principal</button>
+  <button class="vs-btn-s">Secundario</button>
+</div>
+<div class="row"><div class="lbl">Badges</div>
+  <span class="badge-pink">Etiqueta</span>
+  <span class="badge-navy">Estado</span>
+  <span class="badge-navy" style="background:#FBF0F7;color:#A02D6E">Admin</span>
+</div>
+<div class="row"><div class="lbl">Toasts</div>
+  <div class="toast ok">✓ Operación completada</div>
+  <div class="toast err">✕ Error al procesar</div>
+</div>
+<div class="row"><div class="lbl">Card</div>
+  <div class="vs-card"><div class="vs-card-title">Órdenes del día</div><div class="vs-card-sub">12,847 registros · Local 41</div></div>
+</div>
+<div class="row"><div class="lbl">Header dark</div>
+  <div class="vs-hdr"><img src="../assets/logo-valdishopper.png" style="width:24px;height:24px;object-fit:contain"><span class="vs-hdr-brand">VALDI<span style="color:#D64294">SHOPPER</span></span></div>
+</div>
+</body></html>

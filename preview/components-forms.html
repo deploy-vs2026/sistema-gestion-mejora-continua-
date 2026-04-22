@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); font-family: var(--font-body); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+label { font-family: var(--font-head); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #7A869E; }
+input, select { background: #fff; border: 1px solid rgba(11,28,73,0.1); border-radius: 8px; padding: 7px 10px; font-family: var(--font-body); font-size: 12px; color: #0B1C49; outline: none; }
+input:focus, select:focus { border-color: #D64294; box-shadow: 0 0 0 2px rgba(214,66,148,0.15); }
+.hint { font-size: 11px; color: #7A869E; }
+</style></head><body>
+<div class="row">
+  <div class="filter-group">
+    <label>Desde</label>
+    <input type="date" value="2026-04-01" />
+  </div>
+  <div class="filter-group">
+    <label>Hasta</label>
+    <input type="date" value="2026-04-16" />
+  </div>
+  <div class="filter-group">
+    <label>Local</label>
+    <select><option>Todos los locales</option><option>41</option><option>42</option><option>54</option></select>
+  </div>
+  <div class="filter-group">
+    <label>Rol</label>
+    <select><option>admin</option><option>master</option><option>finanzas</option><option>mejora</option></select>
+  </div>
+</div>
+<div class="row">
+  <div class="filter-group">
+    <label>Correo</label>
+    <input type="text" placeholder="nombre@valdishopper.com" style="width:240px" />
+  </div>
+</div>
+<span class="hint">Inputs: radius 8px · focus ring rgba(214,66,148,0.15) · border #D64294</span>
+</body></html>
