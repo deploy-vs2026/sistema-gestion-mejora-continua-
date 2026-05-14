@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import Navbar from "../components/Navbar";
 import Paginator, { paginar } from "../components/Paginator";
-import { getCached, setCached, invalidate } from "../dataCache";
+import { getCached, setCached, invalidate, TTL_DAY_MS } from "../dataCache";
 
 const API           = import.meta.env.VITE_API_URL || "https://dataflow-api-519623119758.us-central1.run.app";
 const DISPLAY_LIMIT = 100;
@@ -47,7 +47,7 @@ function TablaView() {
     setError(null);
     fetch(url)
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
-      .then(d  => { setCached(url, d); setDataset(d); })
+      .then(d  => { setCached(url, d, TTL_DAY_MS); setDataset(d); })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [buildUrl]);
@@ -211,19 +211,28 @@ function KpiView() {
   const [selectedSems, setSelectedSems] = useState([]);
   const [selectedCts,  setSelectedCts]  = useState([]);
 
-  const fetchKpi = useCallback(() => {
-    setLoading(true);
-    setError(null);
+  const buildKpiUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (anio)                params.set("anio",   anio);
     if (selectedSems.length) params.set("semana", selectedSems.join(","));
     if (selectedCts.length)  params.set("ct",     selectedCts.join(","));
-    fetch(`${API}/kpi/geosort?${params}`)
+    return `${API}/kpi/geosort?${params}`;
+  }, [anio, selectedSems, selectedCts]);
+
+  const fetchKpi = useCallback((forzar = false) => {
+    const url = buildKpiUrl();
+    if (!forzar) {
+      const cached = getCached(url);
+      if (cached) { setData(cached); setLoading(false); return; }
+    }
+    setLoading(true);
+    setError(null);
+    fetch(url)
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
-      .then(setData)
+      .then(d  => { setCached(url, d, TTL_DAY_MS); setData(d); })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [anio, selectedSems, selectedCts]);
+  }, [buildKpiUrl]);
 
   useEffect(() => { fetchKpi(); }, [fetchKpi]);
 
@@ -263,7 +272,15 @@ function KpiView() {
             onChange={setSelectedCts}
           />
         </div>
-        {loading && <span style={{ fontSize: 12, color: "var(--text3)" }}>Actualizando...</span>}
+        <button
+          className="btn-primary"
+          onClick={() => { invalidate(buildKpiUrl()); fetchKpi(true); }}
+          disabled={loading}
+          style={{ alignSelf: "flex-end" }}
+        >
+          Actualizar
+        </button>
+        {loading && <span style={{ fontSize: 12, color: "var(--text3)" }}>Cargando...</span>}
       </div>
 
       {error && <p className="table-msg error">{error}</p>}

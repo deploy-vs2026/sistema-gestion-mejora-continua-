@@ -74,6 +74,104 @@ function FileZone({ tipo, onFile, file, estado }) {
   );
 }
 
+const PFA_COLOR = TIPOS.pfa.color;
+
+function PFAMultiZone({ archivos, onAgregar, onRemover, estado }) {
+  const inputRef = useRef();
+  const [drag, setDrag] = useState(false);
+
+  const procesando = estado === "leyendo" || estado === "subiendo";
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setDrag(false);
+    if (procesando) return;
+    Array.from(e.dataTransfer.files).forEach(f => onAgregar(f));
+  }, [procesando, onAgregar]);
+
+  const handleChange = (e) => {
+    Array.from(e.target.files).forEach(f => onAgregar(f));
+    e.target.value = "";
+  };
+
+  return (
+    <div
+      className={`file-zone ${drag ? "drag-over" : ""} ${archivos.length > 0 ? "idle" : "idle"}`}
+      style={{ "--accent": PFA_COLOR, minHeight: 120 }}
+      onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={handleDrop}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".xlsx,.xls,.csv"
+        multiple
+        style={{ display: "none" }}
+        onChange={handleChange}
+      />
+      <div className="zone-header">
+        <span className="tipo-badge" style={{ background: PFA_COLOR + "22", color: PFA_COLOR, borderColor: PFA_COLOR + "44" }}>
+          PFA
+        </span>
+        <span className="tipo-desc">Archivo(s) de proceso</span>
+        {!procesando && (
+          <button
+            onClick={(e) => { e.stopPropagation(); inputRef.current.click(); }}
+            style={{
+              marginLeft: "auto",
+              background: PFA_COLOR + "22",
+              color: PFA_COLOR,
+              border: `1px solid ${PFA_COLOR}44`,
+              borderRadius: 4,
+              padding: "2px 10px",
+              cursor: "pointer",
+              fontSize: 18,
+              lineHeight: 1,
+              fontWeight: 700,
+            }}
+            title="Agregar archivo(s)"
+          >+</button>
+        )}
+      </div>
+
+      {archivos.length === 0 ? (
+        <div className="zone-body" onClick={() => !procesando && inputRef.current.click()} style={{ cursor: "pointer" }}>
+          <p className="zone-status">Arrastra o haz clic</p>
+          <p className="zone-hint">xlsx · xls · csv · varios archivos</p>
+        </div>
+      ) : (
+        <div style={{ padding: "4px 12px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
+          {archivos.map((f, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+              {procesando && estado !== "listo"
+                ? <span className="spinner" style={{ width: 10, height: 10 }} />
+                : <span style={{ color: PFA_COLOR, fontWeight: 700 }}>·</span>
+              }
+              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text1)" }}>
+                {f.name}
+              </span>
+              <span style={{ color: "var(--text3)", flexShrink: 0 }}>
+                {(f.size / 1024).toFixed(0)} KB
+              </span>
+              {!procesando && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemover(i); }}
+                  style={{ background: "none", border: "none", color: "var(--text3)", cursor: "pointer", padding: "0 2px", fontSize: 13 }}
+                  title="Quitar"
+                >✕</button>
+              )}
+            </div>
+          ))}
+          <div style={{ marginTop: 4, fontSize: 11, color: "var(--text3)" }}>
+            {archivos.length} archivo{archivos.length > 1 ? "s" : ""} seleccionado{archivos.length > 1 ? "s" : ""}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StatsCard({ stats, tipo }) {
   if (!stats) return null;
   const cfg = TIPOS[tipo];
@@ -199,54 +297,37 @@ const ACENTO_GEOSORT = "#7C3AED";
 function GeosortPanel() {
   const { rol } = useAuth();
   const { addLog } = useUpload();
-  const [estado,    setEstado]    = useState(null);   // null = cargando
-  const [cargando,  setCargando]  = useState(false);
-  const [resultado, setResultado] = useState(null);
-
-  const esLunes = new Date().getDay() === 1;
+  const [cargando,   setCargando]   = useState(false);
+  const [yaCargado,  setYaCargado]  = useState(false);
+  const [resultado,  setResultado]  = useState(null);
 
   useEffect(() => {
-    if (rol !== "admin") return;
     fetch(`${API}/estado-geosort`)
       .then(r => r.json())
-      .then(setEstado)
-      .catch(() => setEstado({ ya_cargado: false }));
-  }, [rol]);
+      .then(d => setYaCargado(d.ya_cargado))
+      .catch(() => {});
+  }, []);
 
   if (rol !== "admin") return null;
 
-  const bloqueado    = !esLunes || estado?.ya_cargado;
-  const motivoLabel  = resultado
-    ? "Datos cargados"
-    : !esLunes
-      ? "Disponible los lunes"
-      : estado?.ya_cargado
-        ? "Ya cargado esta semana"
-        : estado === null
-          ? "Verificando..."
-          : "Listo para cargar";
+  const bloqueado = yaCargado;
 
   const handleCargar = async () => {
     setCargando(true);
-    addLog("Iniciando carga de datos Geosort desde bucket...");
+    addLog("Cargando datos Geosort desde Drive...");
     try {
       const res  = await fetch(`${API}/cargar-geosort`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Error del servidor");
       setResultado(data);
-      setEstado({ ya_cargado: true });
-      addLog(
-        `✓ Geosort cargado — ${data.filas_totales.toLocaleString()} filas en ${data.archivos.length} archivo(s)`,
-        "success"
-      );
+      setYaCargado(true);
+      addLog(`✓ Geosort cargado — ${data.filas_insertadas.toLocaleString()} rutas · ${data.archivos_procesados} archivos`, "success");
     } catch (err) {
       addLog(`Error Geosort: ${err.message}`, "error");
     } finally {
       setCargando(false);
     }
   };
-
-  const activo = !bloqueado && !cargando && estado !== null && !resultado;
 
   return (
     <div className="file-zone" style={{ "--accent": ACENTO_GEOSORT }}>
@@ -256,35 +337,38 @@ function GeosortPanel() {
         </span>
         <span className="tipo-desc">Reportes de rutas Falabella</span>
       </div>
-      <div className="zone-body">
+      <div className="zone-body" style={{ cursor: "default" }}>
         {resultado ? (
           <>
             <span className="check">✓</span>
             <p className="zone-status">Cargado correctamente</p>
-            <p className="zone-size">
-              {resultado.filas_totales.toLocaleString()} filas · {resultado.archivos.length} archivo(s)
-            </p>
+            <p className="zone-size">{resultado.filas_insertadas.toLocaleString()} rutas · {resultado.archivos_procesados} archivos</p>
           </>
+        ) : yaCargado ? (
+          <>
+            <span className="check">✓</span>
+            <p className="zone-status">Ya cargado hoy</p>
+          </>
+        ) : cargando ? (
+          <p className="zone-status">Cargando desde Drive...</p>
         ) : (
-          <p className="zone-status">{motivoLabel}</p>
+          <p className="zone-status">Listo para cargar</p>
         )}
       </div>
       <button
         onClick={handleCargar}
-        disabled={!activo}
+        disabled={bloqueado || cargando}
         style={{
-          margin: "8px 12px 12px",
-          padding: "8px 0",
+          margin: "0 12px 12px",
+          padding: "6px 0",
           width: "calc(100% - 24px)",
-          background: activo ? ACENTO_GEOSORT : "var(--bg3)",
-          color: activo ? "#fff" : "var(--text3)",
-          border: "none",
+          background: bloqueado || cargando ? "transparent" : ACENTO_GEOSORT + "22",
+          color: bloqueado || cargando ? "var(--text3)" : ACENTO_GEOSORT,
+          border: `1px solid ${bloqueado || cargando ? "var(--border)" : ACENTO_GEOSORT + "44"}`,
           borderRadius: 6,
-          cursor: activo ? "pointer" : "not-allowed",
-          fontFamily: "var(--font-head)",
-          fontSize: 13,
+          cursor: bloqueado || cargando ? "not-allowed" : "pointer",
+          fontSize: 12,
           fontWeight: 600,
-          transition: "background 0.2s",
         }}
       >
         {cargando ? "Cargando..." : "Cargar datos"}
@@ -378,27 +462,68 @@ function HistorialPanel() {
   );
 }
 
+function acumularStatsPfa(anterior, nuevo) {
+  if (!anterior) return nuevo;
+  return {
+    ...nuevo,
+    filas_originales:      (anterior.filas_originales      || 0) + (nuevo.filas_originales      || 0),
+    filas_finanzas:        (anterior.filas_finanzas        || 0) + (nuevo.filas_finanzas        || 0),
+    filas_limpias:         (anterior.filas_limpias         || 0) + (nuevo.filas_limpias         || 0),
+    duplicados_eliminados: (anterior.duplicados_eliminados || 0) + (nuevo.duplicados_eliminados || 0),
+  };
+}
+
 export default function Master() {
   const { uploads, logs, iniciarUpload, resetTodo, addLog } = useUpload();
 
-  const [archivos,   setArchivos]   = useState({ beetrak: null, pfa: null });
-  const [joinData,   setJoinData]   = useState(null);
+  const [archivoBeetrak, setArchivoBeetrak] = useState(null);
+  const [archivosPfa,    setArchivosPfa]    = useState([]);
+  const [joinData,       setJoinData]       = useState(null);
+  const [pfaStatsAcum,   setPfaStatsAcum]   = useState(null);
 
-  const handleFile = (tipo, file) => {
-    setArchivos(prev => ({ ...prev, [tipo]: file }));
-    addLog(`Archivo ${tipo.toUpperCase()} seleccionado: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+  const handleFileBeetrak = (tipo, file) => {
+    setArchivoBeetrak(file);
+    addLog(`Archivo BEETRAK seleccionado: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+  };
+
+  const handleAgregarPfa = (file) => {
+    setArchivosPfa(prev => {
+      if (prev.some(f => f.name === file.name && f.size === file.size)) return prev;
+      addLog(`Archivo PFA agregado: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+      return [...prev, file];
+    });
+  };
+
+  const handleRemoverPfa = (idx) => {
+    setArchivosPfa(prev => prev.filter((_, i) => i !== idx));
   };
 
   const procesarTodo = async () => {
     setJoinData(null);
-    const tareas = Object.entries(archivos)
-      .filter(([tipo, file]) => file && uploads[tipo].estado === "idle")
-      .map(([tipo, file]) => iniciarUpload(tipo, file));
+    setPfaStatsAcum(null);
 
-    await Promise.all(tareas);
+    const tareas = [];
 
-    const ambosListos = ["beetrak", "pfa"].every(t => archivos[t] !== null);
-    if (ambosListos) {
+    if (archivoBeetrak && uploads.beetrak.estado === "idle") {
+      tareas.push(iniciarUpload("beetrak", archivoBeetrak));
+    }
+
+    const pfaPendientes = archivosPfa;
+
+    const procesarPfa = async () => {
+      let acum = null;
+      for (const file of pfaPendientes) {
+        const stats = await iniciarUpload("pfa", file);
+        if (stats) acum = acumularStatsPfa(acum, stats);
+      }
+      if (acum) setPfaStatsAcum(acum);
+    };
+
+    await Promise.all([...tareas, pfaPendientes.length > 0 ? procesarPfa() : Promise.resolve()]);
+
+    const tieneBeetrak = archivoBeetrak !== null;
+    const tienePfa     = archivosPfa.length > 0;
+    if (tieneBeetrak && tienePfa) {
       try {
         addLog("Calculando JOIN Beetrack ↔ PFA...");
         const res  = await fetch(`${API}/join`, { method: "POST" });
@@ -412,13 +537,17 @@ export default function Master() {
   };
 
   const reset = () => {
-    setArchivos({ beetrak: null, pfa: null });
+    setArchivoBeetrak(null);
+    setArchivosPfa([]);
     setJoinData(null);
+    setPfaStatsAcum(null);
     resetTodo();
   };
 
   const hayPendientes  = Object.values(uploads).some(u => u.estado === "leyendo" || u.estado === "subiendo");
-  const puedeProcessar = Object.entries(archivos).some(([t, f]) => f && uploads[t].estado === "idle");
+  const puedeProcessar = (archivoBeetrak && uploads.beetrak.estado === "idle") || archivosPfa.length > 0;
+
+  const statsParaMostrarPfa = pfaStatsAcum || uploads.pfa.stats;
 
   return (
     <div className="page">
@@ -427,11 +556,16 @@ export default function Master() {
         <section className="upload-section">
           <div className="section-label">Archivos</div>
           <div className="zones-grid">
-            <FileZone tipo="beetrak" onFile={handleFile} file={archivos.beetrak} estado={uploads.beetrak.estado} />
-            <FileZone tipo="pfa"     onFile={handleFile} file={archivos.pfa}     estado={uploads.pfa.estado} />
+            <FileZone tipo="beetrak" onFile={handleFileBeetrak} file={archivoBeetrak} estado={uploads.beetrak.estado} />
+            <PFAMultiZone
+              archivos={archivosPfa}
+              onAgregar={handleAgregarPfa}
+              onRemover={handleRemoverPfa}
+              estado={uploads.pfa.estado}
+            />
             <GeosortPanel />
           </div>
-          {archivos.beetrak && archivos.pfa && (
+          {archivoBeetrak && archivosPfa.length > 0 && (
             <div className="join-hint">
               ✦ Ambos archivos cargados — JOIN por orden ↔ shipping_group
             </div>
@@ -442,12 +576,12 @@ export default function Master() {
             </button>
             <button className="btn-ghost" onClick={reset}>Reiniciar</button>
           </div>
-          {(uploads.beetrak.stats || uploads.pfa.stats) && (
+          {(uploads.beetrak.stats || statsParaMostrarPfa) && (
             <div className="stats-section">
               <div className="section-label" style={{ marginTop: 24 }}>Resultado</div>
               <div className="zones-grid">
-                {uploads.beetrak.stats && <StatsCard stats={uploads.beetrak.stats} tipo="beetrak" />}
-                {uploads.pfa.stats     && <StatsCard stats={uploads.pfa.stats}     tipo="pfa" />}
+                {uploads.beetrak.stats  && <StatsCard stats={uploads.beetrak.stats}  tipo="beetrak" />}
+                {statsParaMostrarPfa    && <StatsCard stats={statsParaMostrarPfa}    tipo="pfa" />}
               </div>
               {joinData && <JoinCard joinData={joinData} />}
             </div>

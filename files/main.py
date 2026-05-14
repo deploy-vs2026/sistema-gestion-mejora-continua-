@@ -200,10 +200,12 @@ def limpiar_pfa(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S")
 
     # Numéricos
+    
     for col in ["unidades_solicitadas", "unidades_pickeadas", "unidades_sustituidas",
                 "items_solicitados", "items_a_pagar"]:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            # El "Int64" con mayúscula permite enteros con valores nulos (NaN) sin pasarse a float
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
 
     # doble_pedido → booleano
     if "doble_pedido" in df.columns:

@@ -177,6 +177,8 @@ body { background: var(--bg); background-image: radial-gradient(ellipse at 20% 0
 /* AUTH SCREENS */
 .loading-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:var(--font-head); color:var(--text3); }
 .auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); }
+.auth-screen--login { background-image:url("https://lh3.googleusercontent.com/d/1dDzF8uJbHa0cI1wJuCk3VWpsoWEH_s5_=w1920"); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:var(--bg); }
+.auth-screen--login::before { content:""; position:fixed; inset:0; background:rgba(0,0,0,0.45); pointer-events:none; }
 .auth-card { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:48px 40px; display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center; min-width:380px; box-shadow:0 8px 40px rgba(11,28,73,0.08); }
 .logo-mark.large { width:52px; height:52px; background:var(--gradient); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .auth-card h1 { font-family:var(--font-head); font-size:28px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }

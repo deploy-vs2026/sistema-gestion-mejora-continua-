@@ -21,7 +21,7 @@ export default function Login() {
   }, [authState, rol, navigate]);
 
   return (
-    <div className="auth-screen">
+    <div className="auth-screen auth-screen--login">
       <div className="auth-card">
         <img src="/image.png" alt="Logo" className="logo-img large" />
         <h1>SIGMC</h1>

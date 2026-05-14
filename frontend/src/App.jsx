@@ -9,7 +9,9 @@ import Master   from "./pages/Master";
 import Admin    from "./pages/Admin";
 import Finanzas  from "./pages/Finanzas";
 import Mejora    from "./pages/Mejora";
-import Falabella from "./pages/Falabella";
+import Falabella          from "./pages/Falabella";
+import FalabellaHistorico from "./pages/FalabellaHistorico";
+import Instaleep from "./pages/Instaleep";
 import "./App.css";
 
 export default function App() {
@@ -36,6 +38,12 @@ export default function App() {
           } />
           <Route path="/falabella" element={
             <ProtectedRoute view="falabella"><Falabella /></ProtectedRoute>
+          } />
+          <Route path="/falabella-historico" element={
+            <ProtectedRoute view="falabella-historico"><FalabellaHistorico /></ProtectedRoute>
+          } />
+          <Route path="/instaleep" element={
+            <ProtectedRoute view="instaleep"><Instaleep /></ProtectedRoute>
           } />
 
           <Route path="*" element={<Navigate to="/login" replace />} />

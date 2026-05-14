@@ -1,8 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import * as XLSX from "xlsx";
 
 const API        = import.meta.env.VITE_API_URL || "https://dataflow-api-519623119758.us-central1.run.app";
-const CHUNK_SIZE = 5000;
+const CHUNK_SIZE = 25000;
 
 const UploadContext = createContext(null);
 
@@ -19,10 +19,38 @@ function leerHoja(wb, sheetName) {
     seenHdr[key] = 0;
     return key;
   });
-  return rawMatrix.slice(1).map(row => {
+
+  // Construir mapa de hipervínculos por (fila, col) para capturar URLs de celdas clickeables
+  // Cubre dos casos: hipervínculo Excel (cell.l.Target) y fórmula =HYPERLINK("url","texto") (cell.f)
+  const hyperlinkMap = {};
+  if (ws["!ref"]) {
+    const range = XLSX.utils.decode_range(ws["!ref"]);
+    for (let r = range.s.r; r <= range.e.r; r++) {
+      for (let c = range.s.c; c <= range.e.c; c++) {
+        const cell = ws[XLSX.utils.encode_cell({ r, c })];
+        if (cell?.l?.Target) {
+          hyperlinkMap[`${r},${c}`] = cell.l.Target;
+        } else if (cell?.f) {
+          const m = cell.f.match(/HYPERLINK\("([^"]+)"/i);
+          if (m) hyperlinkMap[`${r},${c}`] = m[1];
+        }
+      }
+    }
+  }
+
+  // La fila de datos empieza en índice 1 del sheet (fila 0 = headers)
+  return rawMatrix.slice(1).map((row, rowIdx) => {
+    const sheetRow = rowIdx + 1;
     const obj = {};
     headers.forEach((h, i) => {
-      const val = row[i] ?? "";
+      const link   = hyperlinkMap[`${sheetRow},${i}`];
+      const rawVal = row[i] ?? "";
+      const rawStr = rawVal !== "" ? String(rawVal) : "";
+      // Si el texto de celda ya es una URL (o lista de URLs), usarlo directamente.
+      // Si el texto no es URL pero existe un hipervínculo, preferir el hipervínculo.
+      // Esto cubre celdas con =HYPERLINK("url","Ver foto") donde el texto no es la URL.
+      const isUrlLike = rawStr.startsWith("http") || rawStr.startsWith("//");
+      const val = rawStr && isUrlLike ? rawStr : (link || rawStr || "");
       obj[h] = val instanceof Date ? val.toISOString() : val;
     });
     return obj;
@@ -36,6 +64,15 @@ export function UploadProvider({ children }) {
     pfa_delivery: { ...IDLE },
   });
   const [logs, setLogs] = useState([]);
+
+  // ── Estado persistente de Falabella Histórico ────────────────────────────────
+  const [falabellaItems,      setFalabellaItems]      = useState([]);
+  const [falabellaProcesando, setFalabellaProcesando] = useState(false);
+  const [falabellaPreviewId,  setFalabellaPreviewId]  = useState(null);
+
+  const falabellaPatchItem = useCallback((id, data) =>
+    setFalabellaItems(prev => prev.map(it => it.id === id ? { ...it, ...data } : it)),
+  []);
 
   const addLog = (msg, tipo = "info") => {
     const ts = new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -131,9 +168,12 @@ export function UploadProvider({ children }) {
         addLog(`✓ DELIVERY completado — ${dCount.toLocaleString()} filas guardadas`, "success");
       }
 
+      return lastData;
+
     } catch (err) {
       patch(tipo, { estado: "error", error: err.message });
       addLog(`Error en ${tipo.toUpperCase()}: ${err.message}`, "error");
+      return null;
     }
   };
 
@@ -144,8 +184,28 @@ export function UploadProvider({ children }) {
     addLog("Sesión reiniciada");
   };
 
+  // Sintetizar entry para el Navbar (mismo formato que uploads regulares)
+  const uploadingFab = falabellaItems.filter(it => it.estado === "subiendo");
+  const falabellaHistoricoEntry = falabellaProcesando && uploadingFab.length > 0
+    ? {
+        estado: "subiendo",
+        filename: uploadingFab[0]?.file.name ?? null,
+        loteActual: uploadingFab.reduce((s, it) => s + it.progresoLote, 0),
+        totalLotes: uploadingFab.reduce((s, it) => s + it.totalLotes, 0),
+        error: null, stats: null,
+      }
+    : { ...IDLE };
+
+  const allUploads = { ...uploads, falabella_historico: falabellaHistoricoEntry };
+
   return (
-    <UploadContext.Provider value={{ uploads, logs, addLog, iniciarUpload, resetUpload, resetTodo }}>
+    <UploadContext.Provider value={{
+      uploads: allUploads, logs, addLog, iniciarUpload, resetUpload, resetTodo,
+      falabellaItems, setFalabellaItems,
+      falabellaProcesando, setFalabellaProcesando,
+      falabellaPreviewId, setFalabellaPreviewId,
+      falabellaPatchItem,
+    }}>
       {children}
     </UploadContext.Provider>
   );

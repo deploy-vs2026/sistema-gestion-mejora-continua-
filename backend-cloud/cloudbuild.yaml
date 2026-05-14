@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -f
+      - jobs/Dockerfile
+      - -t
+      - gcr.io/sigmc-5fae5/beetrak-drive-sync
+      - .
+images:
+  - gcr.io/sigmc-5fae5/beetrak-drive-sync

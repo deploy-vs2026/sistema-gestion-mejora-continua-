@@ -7,11 +7,13 @@ const NAV_ITEMS = [
   { path: "/master",    view: "master",    label: "Carga de Datos",  color: "var(--green)" },
   { path: "/finanzas",  view: "finanzas",  label: "Finanzas",        color: "var(--pink)"  },
   { path: "/mejora",    view: "mejora",    label: "Mejora Continua", color: "var(--china)" },
-  { path: "/falabella", view: "falabella", label: "Geosort",         color: "#A78BFA"      },
-  { path: "/admin",     view: "admin",     label: "Admin",           color: "rgba(255,255,255,0.5)" },
+  { path: "/falabella",          view: "falabella",          label: "Geosort",        color: "#A78BFA"               },
+  { path: "/falabella-historico", view: "falabella-historico", label: "F. Histórico",   color: "#e11d48"               },
+  { path: "/instaleep",          view: "instaleep",          label: "Instaleap",       color: "#6366F1"               },
+  { path: "/admin",              view: "admin",              label: "Admin",           color: "rgba(255,255,255,0.5)" },
 ];
 
-const UPLOAD_COLOR = { beetrak: "#00E5C3", pfa: "#FF6B35", pfa_delivery: "#A78BFA", falabella: "#7C3AED" };
+const UPLOAD_COLOR = { beetrak: "#00E5C3", pfa: "#FF6B35", pfa_delivery: "#A78BFA", falabella: "#7C3AED", falabella_historico: "#e11d48" };
 
 function UploadIndicator({ tipo, upload }) {
   const { estado, loteActual, totalLotes, filename } = upload;
@@ -26,7 +28,7 @@ function UploadIndicator({ tipo, upload }) {
       <span className="upload-spinner" />
       <div className="upload-pill-info">
         <span className="upload-pill-name">
-          <strong>{tipo === "pfa_delivery" ? "DELIVERY" : tipo === "beetrak" ? "BEETRACK" : tipo.toUpperCase()}</strong>
+          <strong>{tipo === "pfa_delivery" ? "DELIVERY" : tipo === "beetrak" ? "BEETRACK" : tipo === "falabella_historico" ? "FAL. HISTÓRICO" : tipo.toUpperCase()}</strong>
           {filename && <span className="upload-pill-file"> · {filename}</span>}
         </span>
         <div className="upload-pill-bar">

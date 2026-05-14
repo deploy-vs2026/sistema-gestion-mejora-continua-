@@ -9,10 +9,10 @@ const CHINA    = "#9F4F69";
 const DISPLAY_LIMIT = 100;
 
 const COLS_PFA = [
-  "shipping_group", "nro_local", "fecha_control", "tipo_servicio", "rol_persona",
-  "fecha_compromiso", "ventana", "inicio_picking",
+  "shipping_group", "nro_local", "fecha_control", "tipo_servicio", "rol_persona", "rut_persona",
+  "fecha_compromiso", "ventana", "inicio_picking", "fin_picking",
   "unidades_solicitadas", "unidades_pickeadas", "unidades_sustituidas",
-  "items_solicitados", "items_a_pagar", "minutos_picking",
+  "items_solicitados", "items_a_pagar", "minutos_picking", "doble_pedido",
 ];
 
 const COLS_BEETRAK = [
@@ -22,7 +22,7 @@ const COLS_BEETRAK = [
   "fecha_creacion", "fecha_primer_intento", "intentos", "rut_movil",
   "tiempo_min_entrega", "tiempo_max_entrega", "fecha_ruta",
   "inicio_ruta", "fin_ruta", "numero_intento", "latitud", "longitud",
-  "fecha_picking",
+  "fecha_picking", "foto_bultos",
 ];
 
 const TABS = [
@@ -212,6 +212,13 @@ export default function Mejora() {
                       <td key={c}>
                         {c === "minutos_picking" && row[c] != null && row[c] !== ""
                           ? Number(row[c]).toFixed(1)
+                          : c === "foto_bultos" && row[c]
+                          ? row[c].split(",").map((url, idx) => (
+                              <a key={idx} href={url.trim()} target="_blank" rel="noopener noreferrer"
+                                 style={{ color: CHINA, display: "block", whiteSpace: "nowrap" }}>
+                                Foto {idx + 1}
+                              </a>
+                            ))
                           : (row[c] ?? "")}
                       </td>
                     ))}</tr>

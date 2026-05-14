@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -f
+      - jobs/Dockerfile.instaleep
+      - -t
+      - gcr.io/sigmc-5fae5/instaleep-drive-sync
+      - .
+images:
+  - gcr.io/sigmc-5fae5/instaleep-drive-sync
