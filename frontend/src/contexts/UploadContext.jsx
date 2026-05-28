@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from "react";
 import * as XLSX from "xlsx";
 
 const API        = import.meta.env.VITE_API_URL || "https://dataflow-api-519623119758.us-central1.run.app";
-const CHUNK_SIZE = 25000;
+const CHUNK_SIZE = 5000;
 
 const UploadContext = createContext(null);
 
@@ -45,13 +45,14 @@ function leerHoja(wb, sheetName) {
     headers.forEach((h, i) => {
       const link   = hyperlinkMap[`${sheetRow},${i}`];
       const rawVal = row[i] ?? "";
-      const rawStr = rawVal !== "" ? String(rawVal) : "";
+      // Convertir fechas a ISO antes de String() — String(Date) da formato locale, no ISO
+      const rawStr = rawVal instanceof Date ? rawVal.toISOString() : (rawVal !== "" ? String(rawVal) : "");
       // Si el texto de celda ya es una URL (o lista de URLs), usarlo directamente.
       // Si el texto no es URL pero existe un hipervínculo, preferir el hipervínculo.
       // Esto cubre celdas con =HYPERLINK("url","Ver foto") donde el texto no es la URL.
       const isUrlLike = rawStr.startsWith("http") || rawStr.startsWith("//");
       const val = rawStr && isUrlLike ? rawStr : (link || rawStr || "");
-      obj[h] = val instanceof Date ? val.toISOString() : val;
+      obj[h] = val;
     });
     return obj;
   });

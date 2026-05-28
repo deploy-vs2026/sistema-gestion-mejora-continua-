@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import * as XLSX from "xlsx";
-import Navbar from "../components/Navbar";
 import { useAuth } from "../contexts/AuthContext";
 import { useUpload } from "../contexts/UploadContext";
 
@@ -430,8 +429,7 @@ export default function FalabellaHistorico() {
   if (rol !== "admin") {
     return (
       <div className="page">
-        <Navbar />
-        <div className="page-content">
+          <div className="page-content">
           <p style={{ color: "var(--text3)", marginTop: 40, textAlign: "center" }}>
             Acceso restringido a administradores.
           </p>
@@ -449,7 +447,6 @@ export default function FalabellaHistorico() {
 
   return (
     <div className="page">
-      <Navbar />
       {confirmar && (
         <ConfirmModal
           items={items}

@@ -1,5 +1,5 @@
 # DataFlow — Arquitectura Cloud
-*Última actualización: 2026-05-11 (sesión 8)*
+*Última actualización: 2026-05-27 (sesión 10)*
 
 ## ⚠️ Pendiente próxima sesión
 
@@ -338,6 +338,93 @@ SELECT * FROM `sigmc-5fae5.dataflow.usuarios`;
 ---
 
 ## Historial de cambios
+
+### 2026-05-27 — Sesión 10
+
+#### Geosort — carga automática de datos crudos a tabla Falabella Histórico
+
+**Contexto**
+- Antes: el scraper solo guardaba `_procesado.csv` (rutas agregadas) en el bucket `reportes-geosort`
+- El admin tenía que subir el reporte manualmente desde FalabellaHistorico para poblar la tabla `falabella`
+- Ahora: el scraper también guarda el CSV crudo (nivel orden, todas las columnas) y el backend lo carga automáticamente a `falabella` junto con la carga diaria de Geosort
+
+**Cambios en `SCRAPER-FALABELLA/scraper.py`**
+- En `main()`, antes de llamar `procesar_reporte`, se crea una copia del archivo descargado con nombre `reporte_YYYY-MM-DD_a_YYYY-MM-DD_crudo.csv`
+- Se llama `guardar_reporte(crudo, ...)` para subirlo al bucket junto al `_procesado.csv`
+- Estructura resultante en el bucket:
+  ```
+  reportes/2026-05-26_a_2026-05-26/
+    ├── reporte_..._crudo.csv      ← NUEVO (raw, todas las columnas)
+    └── reporte_..._procesado.csv  ← igual que antes
+  ```
+
+**Cambios en `backend-cloud/server.py`**
+- Nueva función `_cargar_crudo_a_falabella(contenido, nombre)`:
+  - Lee el CSV crudo con `pd.read_csv(sep=None, engine="python")` para auto-detectar separador
+  - Aplica misma limpieza que FalabellaHistorico: drop `COLS_DROP_FALABELLA`, reemplaza nulls, normaliza fechas y posición, castea strings
+  - Llama `merge_falabella` (MERGE por `IDruta + Posicionruta`)
+  - Registra carga con tipo `falabella`
+- `/cargar-geosort` actualizado: separa los blobs en dos grupos
+  - `*_procesado.csv` → tabla `geosort` (comportamiento sin cambios, falla si hay error)
+  - `*_crudo.csv` → tabla `falabella` (try/except: solo loguea el error, no corta la respuesta)
+
+**Redespliegue necesario**
+```bash
+# Scraper
+cd "C:\Users\agust\OneDrive\Escritorio\SCRAPER-FALABELLA"
+gcloud builds submit --tag gcr.io/sigmc-5fae5/geosort-scraper --project=sigmc-5fae5 .
+gcloud run jobs update geosort-scraper --image=gcr.io/sigmc-5fae5/geosort-scraper --region=us-central1 --set-env-vars="GCP_PROJECT=sigmc-5fae5,BUCKET_SESION=geosort-sesion-sigmc,BUCKET_REPORTES=reportes-geosort,USAR_GCS=true" --set-secrets="GEOSORT_EMAIL=geosort-email:latest,GEOSORT_PASSWORD=geosort-password:latest" --project=sigmc-5fae5
+
+# Backend
+cd "C:\Users\agust\OneDrive\Escritorio\union\backend-cloud"
+gcloud run deploy dataflow-api --source=. --region=us-central1 --allow-unauthenticated --set-env-vars BQ_PROJECT=sigmc-5fae5 --set-env-vars BQ_DATASET=dataflow --memory=2Gi --timeout=300 --max-instances=3 --project=sigmc-5fae5
+```
+
+---
+
+### 2026-05-18 — Sesión 9
+
+#### Instaleep — migración a carpeta `Instaleap_SBA_10min`
+
+**Contexto**
+- La carpeta anterior `Instaleap_SBA_diario` (ID: `160HswDHSzQZxLo3QCeetiv4UW7_-CTMf`) dejó de recibir archivos
+- La nueva carpeta `Instaleap_SBA_10min` genera un archivo cada 10 minutos durante el día
+- Primer archivo del día: ~07:30 hrs Chile / Último: ~22:00 hrs Chile
+- Se toma siempre el **último archivo del día** (mayor timestamp `YYYYMMDD_HHMMSS`)
+
+**Nueva carpeta Drive**
+- Nombre: `Instaleap_SBA_10min`
+- ID: `18l0e1f7-J9M4iffhQpIuYsw46u23iIGZ`
+- Carpeta compartida con SA: `519623119758-compute@developer.gserviceaccount.com` (Lector)
+- Ruta en Drive: `Mejora Continua > Scrappers > Instaleap_SBA_10min`
+
+**Cambios en `backend-cloud/jobs/instaleep_drive_sync.py`**
+- Función renombrada: `encontrar_archivo_ayer` → `encontrar_ultimo_archivo_del_dia`
+- Regex actualizado: de `DATE_RE = r"\d{4}-\d{2}-\d{2}"` a `TS_RE = r"(\d{8}_\d{6})\.xlsx$"` para ordenar correctamente por `YYYYMMDD_HHMMSS`
+- **Fix crítico**: query de Drive ahora filtra por fecha en el nombre (`name contains 'YYYY-MM-DD'`) — antes listaba los últimos 200 archivos y perdía fechas históricas que quedaban fuera del límite de página
+- Variable de entorno `DRIVE_FOLDER_ID_INSTALEEP` actualizada a `18l0e1f7-J9M4iffhQpIuYsw46u23iIGZ`
+
+**Carga histórica realizada (sesión 9)**
+- Fechas cargadas: 2026-05-09, 10, 13, 14, 15, 16, 17
+- Método: `TARGET_DATE=YYYY-MM-DD` + `gcloud run jobs execute --wait`
+- El MERGE por `job_id` evita duplicados en recargas
+
+**Comandos para cargar fechas específicas manualmente**
+```bash
+gcloud run jobs update instaleep-drive-sync --update-env-vars TARGET_DATE=2026-05-XX --region=us-central1 --project=sigmc-5fae5
+gcloud run jobs execute instaleep-drive-sync --region=us-central1 --project=sigmc-5fae5 --wait
+# Al terminar todas las fechas, limpiar:
+gcloud run jobs update instaleep-drive-sync --remove-env-vars TARGET_DATE --region=us-central1 --project=sigmc-5fae5
+```
+
+**Redesplegar el job (necesario al cambiar el script)**
+```bash
+cd "C:\Users\agust\OneDrive\Escritorio\union\backend-cloud"
+gcloud builds submit --config=cloudbuild-instaleep.yaml --project=sigmc-5fae5 .
+gcloud run jobs update instaleep-drive-sync --image=gcr.io/sigmc-5fae5/instaleep-drive-sync --region=us-central1 --project=sigmc-5fae5
+```
+
+---
 
 ### 2026-05-11 — Sesión 8
 

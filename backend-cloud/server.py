@@ -60,6 +60,14 @@ app.add_middleware(
     allow_credentials=False,
 )
 
+# ── Dashboard PFA routers ──────────────────────────────────────────────────────
+from dashboard.routers import lat as dash_lat, secundarias, hd, falabella as dash_fb, pages as dash_pages
+app.include_router(dash_pages.router)
+app.include_router(dash_lat.router)
+app.include_router(secundarias.router)
+app.include_router(hd.router)
+app.include_router(dash_fb.router)
+
 
 # ── Pydantic models ──────────────────────────────────────────────────────────
 class UsuarioIn(BaseModel):
@@ -371,6 +379,12 @@ def merge_beetrak(df: pd.DataFrame):
     # Agregar columnas nuevas al schema antes del MERGE
     _ensure_beetrak_cols(list(df.columns))
 
+    # Deduplicar por orden — MERGE de BigQuery falla si la fuente tiene claves repetidas
+    antes = len(df)
+    df = df.drop_duplicates(subset=["orden"], keep="last")
+    if len(df) < antes:
+        log.info(f"Deduplicados {antes - len(df)} registros con orden repetido")
+
     job = bq_client.load_table_from_dataframe(df, tmp_tabla, job_config=job_config_trunc)
     job.result()
 
@@ -419,13 +433,19 @@ def merge_pfa_limpia(df: pd.DataFrame):
     job = bq_client.load_table_from_dataframe(df, tmp_tabla, job_config=job_config)
     job.result()
 
-    # 2. MERGE: insertar solo shipping_groups que no existen en pfa
+    # 2. MERGE: insertar o actualizar por shipping_group
     cols = ", ".join(f"`{c}`" for c in df.columns)
     src_cols = ", ".join(f"src.`{c}`" for c in df.columns)
+    upd_cols = ", ".join(
+        f"tgt.`{c}` = src.`{c}`"
+        for c in df.columns if c != "shipping_group"
+    )
     merge_query = f"""
     MERGE `{BQ_TABLE_PFA}` AS tgt
     USING `{tmp_tabla}` AS src
     ON tgt.shipping_group = src.shipping_group
+    WHEN MATCHED THEN
+        UPDATE SET {upd_cols}
     WHEN NOT MATCHED THEN
         INSERT ({cols}) VALUES ({src_cols})
     """
@@ -1587,27 +1607,63 @@ def limpiar_geosort():
         raise HTTPException(500, str(e))
 
 
+def _cargar_crudo_a_falabella(contenido: bytes, nombre: str):
+    """
+    Lee un CSV crudo de Geosort y lo inserta en la tabla falabella (sin agregar).
+    Aplica la misma limpieza que FalabellaHistorico.
+    Lanza excepción si falla — el caller decide si cortar o solo loguear.
+    """
+    df = pd.read_csv(io.BytesIO(contenido), sep=None, engine="python")
+    df = df.drop(columns=[c for c in COLS_DROP_FALABELLA if c in df.columns])
+    df = df.replace(["", "N/A", "NA", "#N/A", "#NA", "null", "NULL", "None", "n/a", "-"], None)
+
+    # Normalizar fecha de inicio de ruta si existe
+    for col_fecha in ("Fechainicioruta", "fechainicioruta", "Fecha Inicio Ruta"):
+        if col_fecha in df.columns:
+            df[col_fecha] = pd.to_datetime(df[col_fecha], errors="coerce", utc=True)
+            break
+
+    # Normalizar posicion si existe
+    for col_pos in ("Posicionruta", "posicionruta", "Posicion ruta"):
+        if col_pos in df.columns:
+            df[col_pos] = pd.to_numeric(df[col_pos], errors="coerce").astype("Int64")
+            break
+
+    # Castear todas las columnas object a str limpio (evita que PyArrow falle con tipos mixtos)
+    for col in df.select_dtypes(include="object").columns:
+        df[col] = df[col].astype(str).where(df[col].notna(), None)
+
+    merge_falabella(df)
+    registrar_carga("falabella", nombre, len(df))
+    log.info(f"Falabella (vía geosort crudo): {nombre} — {len(df)} filas")
+
+
 @app.post("/cargar-geosort")
 def cargar_geosort():
-    """Lee CSVs procesados del bucket reportes-geosort subidos en las últimas 48 h e inserta en BigQuery."""
+    """
+    Lee del bucket reportes-geosort los archivos subidos en las últimas 48 h:
+      - *_procesado.csv → agrega a nivel ruta e inserta en tabla geosort
+      - *_crudo.csv     → inserta sin agregar en tabla falabella (solo loguea si falla)
+    """
     from google.cloud import storage as gcs_lib
 
     gcs = gcs_lib.Client(project=BQ_PROJECT)
     bucket = gcs.bucket(BUCKET_REPORTES)
 
     hace_48h = datetime.now(timezone.utc) - timedelta(hours=48)
-    blobs = [
-        b for b in bucket.list_blobs(prefix="reportes/")
-        if b.name.endswith("_procesado.csv") and b.time_created >= hace_48h
-    ]
+    todos_blobs = [b for b in bucket.list_blobs(prefix="reportes/") if b.time_created >= hace_48h]
 
-    if not blobs:
-        raise HTTPException(404, "No se encontraron archivos procesados del domingo en el bucket.")
+    blobs_procesado = [b for b in todos_blobs if b.name.endswith("_procesado.csv")]
+    blobs_crudo     = [b for b in todos_blobs if b.name.endswith("_crudo.csv")]
+
+    if not blobs_procesado:
+        raise HTTPException(404, "No se encontraron archivos procesados en el bucket.")
 
     total_filas = 0
     archivos_cargados = []
 
-    for blob in blobs:
+    # ── 1. Carga a tabla geosort (lógica existente, sin cambios) ─────────────
+    for blob in blobs_procesado:
         contenido = blob.download_as_bytes()
         df = pd.read_csv(io.BytesIO(contenido))
 
@@ -1617,7 +1673,6 @@ def cargar_geosort():
         for col in ["semana", "anio", "pendientes", "terminados", "total"]:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
-        # Forzar STRING en todas las columnas definidas como STRING (aunque pandas las haya inferido como int/float)
         for col, bq_type in GEOSORT_COL_TYPES.items():
             if bq_type == "STRING" and col in df.columns:
                 df[col] = df[col].astype(str).str.strip().replace("nan", None).replace("", None)
@@ -1628,6 +1683,15 @@ def cargar_geosort():
         archivos_cargados.append(nombre_corto)
         registrar_carga("geosort", nombre_corto, len(df))
         log.info(f"Geosort: {nombre_corto} — {len(df)} filas")
+
+    # ── 2. Carga a tabla falabella (crudo, solo loguea si falla) ─────────────
+    for blob in blobs_crudo:
+        nombre_corto = blob.name.split("/")[-1]
+        try:
+            contenido = blob.download_as_bytes()
+            _cargar_crudo_a_falabella(contenido, nombre_corto)
+        except Exception as e:
+            log.error(f"[falabella] Error cargando '{nombre_corto}': {e}", exc_info=True)
 
     return {"ok": True, "archivos": archivos_cargados, "filas_totales": total_filas}
 

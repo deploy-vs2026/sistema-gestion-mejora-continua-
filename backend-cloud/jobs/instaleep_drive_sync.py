@@ -1,14 +1,15 @@
 """
 Cloud Run Job — Sincroniza Instaleep desde Google Drive a BigQuery.
 
-Detecta el archivo .xlsx cuyo nombre contiene la fecha de ayer
-(formato: pedidos_clean_ALL_YYYY-MM-DD_to_YYYY-MM-DD_*.xlsx),
-lo descarga, limpia los tipos y hace MERGE en BigQuery con clave job_id.
+Detecta el último archivo .xlsx del día anterior en la carpeta Instaleap_SBA_10min.
+Formato de nombre: pedidos_clean_ALL_YYYY-MM-DD_to_YYYY-MM-DD_YYYYMMDD_HHMMSS.xlsx
+Hay múltiples archivos por día (cada ~10 min). Se toma el de timestamp más tardío.
 
 Env vars:
   DRIVE_FOLDER_ID_INSTALEEP  — ID de la carpeta de Drive (requerido)
   BQ_PROJECT                 — default: sigmc-5fae5
   BQ_DATASET                 — default: dataflow
+  TARGET_DATE                — override manual: YYYY-MM-DD
 """
 
 import io
@@ -33,7 +34,8 @@ log = logging.getLogger(__name__)
 DRIVE_FOLDER_ID = os.environ.get("DRIVE_FOLDER_ID_INSTALEEP", "")
 TARGET_DATE     = os.environ.get("TARGET_DATE", "")  # override: YYYY-MM-DD
 DRIVE_SCOPES    = ["https://www.googleapis.com/auth/drive.readonly"]
-DATE_RE         = re.compile(r"\d{4}-\d{2}-\d{2}")
+# Captura el timestamp YYYYMMDD_HHMMSS al final del nombre (antes de .xlsx)
+TS_RE = re.compile(r"(\d{8}_\d{6})\.xlsx$")
 
 
 def get_drive_service():
@@ -44,28 +46,29 @@ def get_drive_service():
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 
 
-def encontrar_archivo_ayer(service) -> dict | None:
-    """Devuelve el archivo .xlsx cuyo nombre contiene la fecha objetivo (ayer por defecto)."""
+def encontrar_ultimo_archivo_del_dia(service) -> dict | None:
+    """Devuelve el archivo .xlsx más tardío del día anterior (o TARGET_DATE si se define)."""
     ayer = TARGET_DATE if TARGET_DATE else (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
 
     query = (
         f"'{DRIVE_FOLDER_ID}' in parents"
         " and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
         " and trashed=false"
+        f" and name contains '{ayer}'"
     )
     result = service.files().list(
         q=query,
         fields="files(id, name)",
-        pageSize=200,
+        pageSize=100,
         supportsAllDrives=True,
         includeItemsFromAllDrives=True,
         corpora="allDrives",
     ).execute()
 
     archivos = result.get("files", [])
-    log.info(f"Archivos .xlsx en Drive: {len(archivos)}")
+    log.info(f"Archivos .xlsx en Drive para {ayer}: {len(archivos)}")
 
-    # Buscar archivo que contenga la fecha de ayer en el nombre
+    # Filtrar por fecha del día objetivo en el nombre
     candidatos = [
         f for f in archivos
         if ayer in f["name"] and f["name"].startswith("pedidos_clean_ALL")
@@ -75,13 +78,15 @@ def encontrar_archivo_ayer(service) -> dict | None:
         log.warning(f"No se encontró archivo con fecha {ayer} en el nombre.")
         return None
 
-    # Si hay más de uno, tomar el más reciente por timestamp en el nombre
+    log.info(f"Candidatos para {ayer}: {len(candidatos)} archivos")
+
+    # Tomar el de timestamp YYYYMMDD_HHMMSS más alto (último del día)
     def timestamp_del_nombre(nombre):
-        partes = DATE_RE.findall(nombre)
-        return max(partes) if partes else "0"
+        m = TS_RE.search(nombre)
+        return m.group(1) if m else "00000000_000000"
 
     archivo = max(candidatos, key=lambda f: timestamp_del_nombre(f["name"]))
-    log.info(f"Archivo seleccionado: '{archivo['name']}'")
+    log.info(f"Archivo seleccionado (último del día): '{archivo['name']}'")
     return archivo
 
 
@@ -104,7 +109,7 @@ def main():
     log.info("=== Instaleep Drive Sync — inicio ===")
     service = get_drive_service()
 
-    archivo = encontrar_archivo_ayer(service)
+    archivo = encontrar_ultimo_archivo_del_dia(service)
     if not archivo:
         log.warning("No hay archivo de ayer para procesar. Saliendo.")
         return

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
-import Navbar from "../components/Navbar";
 import Paginator, { paginar } from "../components/Paginator";
 import { getCached, setCached, invalidate } from "../dataCache";
 
@@ -131,7 +130,6 @@ export default function Mejora() {
 
   return (
     <div className="page">
-      <Navbar />
       <div className="page-content">
 
         {/* ── Header + filtros ── */}

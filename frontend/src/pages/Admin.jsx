@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
 
 const API   = import.meta.env.VITE_API_URL || "https://dataflow-api-519623119758.us-central1.run.app";
-const ROLES = ["admin", "master", "finanzas", "mejora"];
+const ROLES = ["admin", "master", "finanzas", "mejora", "operaciones"];
 
 const LOCAL_PREFIJOS_DEFAULT = {
   "41":  ["LTVS", "DRVS", "LTTH", "DRTH"],
@@ -40,6 +39,57 @@ const LOCAL_PREFIJOS_DEFAULT = {
   "952": ["LTVS", "DRVS"],
 };
 
+const ACENTO = "#0B1C49";   // navy
+const PINK   = "#D64294";
+const GREEN  = "#00C48C";
+const ORANGE = "#FF6B35";
+const RED    = "#FF4466";
+
+const ROLE_COLOR = {
+  admin:       PINK,
+  master:      ACENTO,
+  finanzas:    "#7C3AED",
+  mejora:      "#9F4F69",
+  operaciones: "#F59E0B",
+};
+
+// ─── Estilos compartidos ────────────────────────────────────────────────────
+const eyebrow = {
+  fontFamily: "var(--font-head)",
+  fontSize: 10, fontWeight: 700,
+  textTransform: "uppercase", letterSpacing: "0.12em",
+  color: "var(--text3)",
+};
+
+const cardBase = {
+  background: "var(--bg2)",
+  border: "1px solid var(--border)",
+  borderRadius: 12,
+  position: "relative",
+  overflow: "hidden",
+};
+
+const sectionTitle = (icon, color, title, hint) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+    {icon && (
+      <span style={{
+        width: 32, height: 32, borderRadius: 10,
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        background: `${color}14`, color, fontSize: 16, fontWeight: 700,
+      }}>{icon}</span>
+    )}
+    <div>
+      <p style={{
+        fontFamily: "var(--font-head)", fontSize: 14, fontWeight: 700,
+        color: "var(--text)", margin: 0, letterSpacing: "-0.01em",
+      }}>{title}</p>
+      {hint && (
+        <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0", fontWeight: 300 }}>{hint}</p>
+      )}
+    </div>
+  </div>
+);
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Locales y prefijos válidos
 ═══════════════════════════════════════════════════════════════════════════ */
@@ -72,7 +122,7 @@ function LocalesPrefijosSection({ flash }) {
   const [editado,   setEditado]   = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [abierto,      setAbierto]      = useState(false);
-  const [confirmarId,  setConfirmarId]  = useState(null); // id del local pendiente de borrar
+  const [confirmarId,  setConfirmarId]  = useState(null);
 
   const cargarConfig = () => {
     fetch(`${API}/configuracion/locales`)
@@ -137,149 +187,273 @@ function LocalesPrefijosSection({ flash }) {
   };
 
   if (!rows) return (
-    <div className="admin-section">
-      <div className="admin-section-header">Locales válidos (Beetrak)</div>
-      <p style={{ padding: "12px 0", color: "var(--text3)", fontSize: 13 }}>Cargando...</p>
+    <div style={{ ...cardBase, padding: "18px 20px" }}>
+      <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: PINK }} />
+      {sectionTitle("◫", PINK, "Locales válidos (Beetrak)", "cargando configuración...")}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", color: "var(--text3)", fontSize: 13 }}>
+        <span className="spinner" style={{
+          width: 16, height: 16, border: "2px solid var(--border)", borderTopColor: PINK,
+          borderRadius: "50%", animation: "spin 0.8s linear infinite",
+        }} />
+        Cargando...
+      </div>
     </div>
   );
 
   const localPendiente = rows?.find(r => r.id === confirmarId);
 
   return (
-    <div className="admin-section">
+    <div style={{ ...cardBase, padding: "18px 20px" }}>
+      <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: PINK }} />
 
       {confirmarId && (
         <div
           onClick={() => setConfirmarId(null)}
           style={{
             position: "fixed", inset: 0, zIndex: 1000,
-            background: "rgba(11,28,73,0.18)",
-            backdropFilter: "blur(2px)",
+            background: "rgba(11,28,73,0.22)",
+            backdropFilter: "blur(3px)",
             display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 20,
           }}
         >
           <div
             onClick={e => e.stopPropagation()}
             style={{
               background: "var(--bg2)", border: "1px solid var(--border2)",
-              borderRadius: 16, padding: "28px 32px", minWidth: 320, maxWidth: 420,
-              boxShadow: "0 8px 40px rgba(11,28,73,0.12)",
+              borderRadius: 16, padding: 0, minWidth: 360, maxWidth: 440,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+              position: "relative", overflow: "hidden",
+              animation: "slideUp 0.18s ease-out",
             }}
           >
-            <p style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 8, fontFamily: "var(--font-head)" }}>
-              ¿Eliminar local?
-            </p>
-            <p style={{ fontSize: 13, color: "var(--text2)", marginBottom: 6, lineHeight: 1.6 }}>
-              Vas a eliminar el local{" "}
-              <strong style={{ color: "var(--text)", fontFamily: "var(--font-mono)" }}>{localPendiente?.local}</strong>
-            </p>
-            <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 24, fontFamily: "var(--font-mono)", background: "var(--bg)", borderRadius: 8, padding: "6px 10px" }}>
-              {localPendiente?.prefijos}
-            </p>
-            <p style={{ fontSize: 11, color: "var(--text3)", marginBottom: 20 }}>
-              Los cambios no se aplican hasta que presiones Guardar.
-            </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button className="btn-ghost" onClick={() => setConfirmarId(null)}>Cancelar</button>
-              <button className="btn-del" onClick={confirmarEliminar} style={{ padding: "7px 20px", fontSize: 13 }}>Eliminar</button>
+            <div style={{ position: "absolute", inset: "0 0 auto 0", height: 3, background: RED }} />
+            <div style={{ padding: "28px 28px 22px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                <span style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  background: `${RED}14`, color: RED, fontSize: 18, fontWeight: 700,
+                }}>⚠</span>
+                <p style={{ fontSize: 16, fontWeight: 700, color: "var(--text)", fontFamily: "var(--font-head)", letterSpacing: "-0.01em" }}>
+                  ¿Eliminar este local?
+                </p>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text2)", marginBottom: 12, lineHeight: 1.55 }}>
+                Vas a eliminar el local{" "}
+                <strong style={{ color: "var(--text)", fontFamily: "var(--font-mono)" }}>{localPendiente?.local}</strong>{" "}
+                con los siguientes prefijos:
+              </p>
+              <p style={{
+                fontSize: 12, color: "var(--text2)",
+                marginBottom: 18, padding: "8px 12px",
+                background: "var(--bg3)", borderRadius: 8,
+                fontFamily: "var(--font-mono)",
+                border: "1px solid var(--border)",
+              }}>
+                {localPendiente?.prefijos}
+              </p>
+              <p style={{ fontSize: 11, color: "var(--text3)", marginBottom: 22, lineHeight: 1.5 }}>
+                Los cambios no se aplican hasta que presiones <strong style={{ color: "var(--text2)", fontWeight: 600 }}>Guardar</strong>.
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <button className="btn-ghost" onClick={() => setConfirmarId(null)}>Cancelar</button>
+                <button className="btn-del" onClick={confirmarEliminar} style={{ padding: "8px 22px", fontSize: 13 }}>
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Header colapsable */}
       <div
-        className="admin-section-header"
         onClick={() => setAbierto(v => !v)}
-        style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", cursor: "pointer", userSelect: "none" }}
+        style={{
+          display: "flex", alignItems: "center", gap: 12,
+          cursor: "pointer", userSelect: "none",
+          marginBottom: abierto ? 14 : 0,
+        }}
       >
-        <span style={{ fontSize: 12, color: "var(--text3)", transition: "transform 0.2s", display: "inline-block", transform: abierto ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
-        <span>Locales válidos (Beetrak)</span>
-        <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 400 }}>
-          {rows.length} locales configurados
-        </span>
+        <span style={{
+          width: 32, height: 32, borderRadius: 10,
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          background: `${PINK}14`, color: PINK, fontSize: 16, fontWeight: 700,
+        }}>◫</span>
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontFamily: "var(--font-head)", fontSize: 14, fontWeight: 700,
+            color: "var(--text)", margin: 0, letterSpacing: "-0.01em",
+          }}>Locales válidos (Beetrak)</p>
+          <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0", fontWeight: 300 }}>
+            {rows.length} locales configurados — filtran qué se procesa al subir Beetrak
+          </p>
+        </div>
         {editado && (
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "#F59E0B", fontWeight: 600 }}>
-            • Sin guardar
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontSize: 11, padding: "4px 10px", borderRadius: 99,
+            background: `${ORANGE}14`, color: ORANGE,
+            fontWeight: 600,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: ORANGE }} />
+            Sin guardar
           </span>
         )}
+        <span style={{
+          fontSize: 12, color: "var(--text3)",
+          transition: "transform 0.2s",
+          transform: abierto ? "rotate(90deg)" : "rotate(0deg)",
+          display: "inline-block",
+        }}>▶</span>
       </div>
 
       {abierto && <>
-      <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 8, lineHeight: 1.5 }}>
-        Al subir un archivo Beetrak, solo se procesan filas cuyo LOCAL esté en esta lista
-        y cuyo Identificador empiece con uno de los prefijos permitidos.
-      </p>
+        <p style={{ fontSize: 12, color: "var(--text2)", marginBottom: 12, lineHeight: 1.55 }}>
+          Al subir un archivo Beetrak, solo se procesan filas cuyo <strong style={{ color: "var(--text)", fontWeight: 600 }}>LOCAL</strong> esté en esta lista
+          y cuyo <strong style={{ color: "var(--text)", fontWeight: 600 }}>Identificador</strong> empiece con uno de los prefijos permitidos.
+        </p>
 
-      <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
-        <div style={{ overflowY: "auto", maxHeight: 420 }}>
-          <table className="data-table" style={{ margin: 0 }}>
-            <thead>
-              <tr>
-                <th style={{ width: 100 }}>Local</th>
-                <th>Prefijos válidos <span style={{ fontWeight: 400, fontSize: 11 }}>(separados por coma)</span></th>
-                <th style={{ width: 36 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(r => {
-                const localDup = dupLocal && localesActivos.filter(l => l === r.local.trim()).length > 1;
-                const sinPref  = r.local.trim() && !r.prefijos.trim();
-                return (
-                  <tr key={r.id}>
-                    <td style={{ padding: "3px 8px" }}>
-                      <input
-                        className="input-text"
-                        style={{
-                          width: "100%", fontSize: 12, padding: "3px 7px",
-                          fontFamily: "var(--font-mono)",
-                          borderColor: localDup ? "#EF4444" : undefined,
-                        }}
-                        value={r.local}
-                        placeholder="Ej: 41"
-                        onChange={e => editLocal(r.id, e.target.value)}
-                      />
-                    </td>
-                    <td style={{ padding: "3px 8px" }}>
-                      <input
-                        className="input-text"
-                        style={{
-                          width: "100%", fontSize: 12, padding: "3px 7px",
-                          fontFamily: "var(--font-mono)",
-                          borderColor: sinPref ? "#EF4444" : undefined,
-                        }}
-                        value={r.prefijos}
-                        placeholder="Ej: LTVS, DRVS, LTTH"
-                        onChange={e => editPrefijos(r.id, e.target.value)}
-                      />
-                    </td>
-                    <td style={{ padding: "3px 6px", textAlign: "center" }}>
-                      <button
-                        className="btn-del"
-                        onClick={() => eliminar(r.id)}
-                        style={{ padding: "2px 8px", fontSize: 11 }}
-                      >
-                        ✕
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ overflowY: "auto", maxHeight: 420 }}>
+            <table className="data-table" style={{ margin: 0 }}>
+              <thead>
+                <tr>
+                  <th style={{ width: 110 }}>Local</th>
+                  <th>
+                    Prefijos válidos{" "}
+                    <span style={{ fontWeight: 400, fontSize: 10, color: "var(--text3)" }}>
+                      (separados por coma)
+                    </span>
+                  </th>
+                  <th style={{ width: 44 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(r => {
+                  const localDup = dupLocal && localesActivos.filter(l => l === r.local.trim()).length > 1;
+                  const sinPref  = r.local.trim() && !r.prefijos.trim();
+                  return (
+                    <tr key={r.id}>
+                      <td style={{ padding: "5px 8px" }}>
+                        <input
+                          className="input-text"
+                          style={{
+                            width: "100%", fontSize: 12, padding: "5px 9px",
+                            fontFamily: "var(--font-mono)",
+                            borderColor: localDup ? RED : undefined,
+                            background: localDup ? `${RED}08` : undefined,
+                          }}
+                          value={r.local}
+                          placeholder="Ej: 41"
+                          onChange={e => editLocal(r.id, e.target.value)}
+                        />
+                      </td>
+                      <td style={{ padding: "5px 8px" }}>
+                        <input
+                          className="input-text"
+                          style={{
+                            width: "100%", fontSize: 12, padding: "5px 9px",
+                            fontFamily: "var(--font-mono)",
+                            borderColor: sinPref ? RED : undefined,
+                            background: sinPref ? `${RED}08` : undefined,
+                          }}
+                          value={r.prefijos}
+                          placeholder="Ej: LTVS, DRVS, LTTH"
+                          onChange={e => editPrefijos(r.id, e.target.value)}
+                        />
+                      </td>
+                      <td style={{ padding: "5px 6px", textAlign: "center" }}>
+                        <button
+                          onClick={() => eliminar(r.id)}
+                          title="Eliminar local"
+                          style={{
+                            width: 26, height: 26, borderRadius: 6,
+                            border: "1px solid var(--border)",
+                            background: "var(--bg2)",
+                            color: "var(--text3)",
+                            cursor: "pointer",
+                            fontSize: 13,
+                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                            transition: "all 0.12s",
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.borderColor = RED;
+                            e.currentTarget.style.color = RED;
+                            e.currentTarget.style.background = `${RED}08`;
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.borderColor = "var(--border)";
+                            e.currentTarget.style.color = "var(--text3)";
+                            e.currentTarget.style.background = "var(--bg2)";
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {dupLocal  && <p style={{ fontSize: 12, color: "#EF4444", marginTop: 5 }}>Hay locales duplicados.</p>}
-      {hayVacios && <p style={{ fontSize: 12, color: "#EF4444", marginTop: 5 }}>Hay locales sin prefijos definidos.</p>}
+        {(dupLocal || hayVacios) && (
+          <div style={{
+            marginTop: 10,
+            padding: "8px 12px",
+            background: `${RED}0d`,
+            border: `1px solid ${RED}33`,
+            borderRadius: 8,
+            fontSize: 12, color: RED, fontWeight: 500,
+          }}>
+            {dupLocal  && <div>⚠ Hay locales duplicados.</div>}
+            {hayVacios && <div>⚠ Hay locales sin prefijos definidos.</div>}
+          </div>
+        )}
 
-      <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <button className="btn-add" onClick={guardar} disabled={!editado || guardando || hayError}>
-          {guardando ? "Guardando..." : `Guardar (${rows.length} locales)`}
-        </button>
-        <button className="btn-ghost" onClick={agregar}>+ Agregar local</button>
-        <button className="btn-ghost" onClick={restaurar} style={{ marginLeft: "auto" }}>Restaurar defaults</button>
-      </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <button className="btn-add" onClick={guardar} disabled={!editado || guardando || hayError}>
+            {guardando ? "Guardando..." : `Guardar (${rows.length} locales)`}
+          </button>
+          <button className="btn-ghost" onClick={agregar}>+ Agregar local</button>
+          <button className="btn-ghost" onClick={restaurar} style={{ marginLeft: "auto" }}>
+            ↺ Restaurar defaults
+          </button>
+        </div>
       </>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Toast (flash messages)
+═══════════════════════════════════════════════════════════════════════════ */
+function Toast({ msg }) {
+  if (!msg) return null;
+  const ok = msg.ok;
+  return (
+    <div style={{
+      position: "fixed", bottom: 24, right: 24, zIndex: 2000,
+      background: "var(--text)", color: "#fff",
+      borderRadius: 10, padding: "12px 18px 12px 16px",
+      fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500,
+      boxShadow: "0 12px 32px rgba(11,28,73,0.20)",
+      borderLeft: `4px solid ${ok ? GREEN : RED}`,
+      display: "flex", alignItems: "center", gap: 10,
+      animation: "slideInRight 0.22s ease-out",
+      maxWidth: 360,
+    }}>
+      <span style={{
+        width: 22, height: 22, borderRadius: "50%",
+        background: ok ? `${GREEN}33` : `${RED}33`,
+        color: ok ? GREEN : RED,
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        fontSize: 12, fontWeight: 700,
+      }}>{ok ? "✓" : "✕"}</span>
+      {msg.text}
     </div>
   );
 }
@@ -289,6 +463,7 @@ function LocalesPrefijosSection({ flash }) {
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function Admin() {
   const [usuarios, setUsuarios] = useState({});
+  const [usuariosAbierto, setUsuariosAbierto] = useState(true);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
   const [correo,   setCorreo]   = useState("");
@@ -351,18 +526,80 @@ export default function Admin() {
     }
   };
 
+  const totalUsuarios = Object.keys(usuarios).length;
+  const porRol = ROLES.reduce((acc, r) => {
+    acc[r] = Object.values(usuarios).filter(v => v === r).length;
+    return acc;
+  }, {});
+
   return (
     <div className="page">
-      <Navbar />
       <div className="page-content">
-        <div className="page-header">
-          <h2 className="page-title" style={{ "--accent": "rgba(255,255,255,0.5)" }}>Panel Admin</h2>
-          {msg && <div className={`flash-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
+
+        {/* Header */}
+        <div className="page-header" style={{ marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <h2 className="page-title" style={{ "--accent": ACENTO }}>Panel Admin</h2>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              fontSize: 11, padding: "4px 10px", borderRadius: 99,
+              background: `${ACENTO}10`, color: ACENTO,
+              fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
+            }}>Solo administradores</span>
+          </div>
         </div>
 
-        <div className="admin-section">
-          <div className="admin-section-header">Agregar / actualizar usuario</div>
-          <div className="admin-add-form">
+        <p style={{
+          fontSize: 13, color: "var(--text2)", margin: "0 0 24px",
+          maxWidth: 720, lineHeight: 1.55, fontWeight: 300,
+        }}>
+          Gestión de <strong style={{ color: "var(--text)", fontWeight: 600 }}>accesos y configuración</strong> del sistema. Administra qué cuentas pueden entrar y con qué rol, y define los locales válidos del pipeline Beetrak.
+        </p>
+
+        {/* Mini-resumen de usuarios por rol */}
+        {!loading && !error && (
+          <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+            <div style={{
+              ...cardBase, padding: "14px 18px",
+              flex: 1, minWidth: 130,
+              display: "flex", flexDirection: "column", gap: 2,
+            }}>
+              <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: ACENTO }} />
+              <span style={{ ...eyebrow, fontSize: 9 }}>Total usuarios</span>
+              <span style={{
+                fontFamily: "var(--font-head)", fontSize: 24, fontWeight: 800,
+                color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1,
+              }}>
+                {totalUsuarios}
+              </span>
+            </div>
+            {ROLES.map(r => (
+              <div key={r} style={{
+                ...cardBase, padding: "14px 18px",
+                flex: 1, minWidth: 110,
+                display: "flex", flexDirection: "column", gap: 2,
+              }}>
+                <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: ROLE_COLOR[r] }} />
+                <span style={{ ...eyebrow, fontSize: 9 }}>{r}</span>
+                <span style={{
+                  fontFamily: "var(--font-head)", fontSize: 22, fontWeight: 800,
+                  color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1,
+                }}>
+                  {porRol[r] ?? 0}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Agregar usuario ── */}
+        <div style={{ ...cardBase, overflow: "visible", padding: "18px 20px", marginBottom: 16 }}>
+          <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: GREEN }} />
+          {sectionTitle("+", GREEN, "Agregar / actualizar usuario", "ingresa un correo @valdishopper.com y asigna su rol")}
+
+          <div className="admin-add-form" style={{
+            display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end",
+          }}>
             <div className="filter-group">
               <label>Correo</label>
               <input
@@ -372,51 +609,169 @@ export default function Admin() {
                 value={correo}
                 onChange={e => setCorreo(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && agregar()}
-                style={{ width: 280 }}
+                style={{ width: 320 }}
               />
             </div>
             <div className="filter-group">
               <label>Rol</label>
-              <select className="select-rol" value={rol} onChange={e => setRol(e.target.value)}>
+              <select className="select-rol input-text" value={rol} onChange={e => setRol(e.target.value)} style={{ minWidth: 160 }}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
-            <button className="btn-add" onClick={agregar}>Guardar</button>
+            <button className="btn-add" onClick={agregar}>
+              Guardar
+            </button>
           </div>
         </div>
 
-        <div className="table-wrap">
-          {loading && <p className="table-msg">Cargando usuarios...</p>}
-          {error   && <p className="table-msg error">{error}</p>}
+        {/* ── Lista de usuarios (colapsable) ── */}
+        <div style={{ ...cardBase, padding: "18px 20px", marginBottom: 16 }}>
+          <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: ACENTO }} />
+
+          {/* Header colapsable */}
+          <div
+            onClick={() => setUsuariosAbierto(v => !v)}
+            style={{
+              display: "flex", alignItems: "center", gap: 12,
+              cursor: "pointer", userSelect: "none",
+              marginBottom: usuariosAbierto ? 14 : 0,
+            }}
+          >
+            <span style={{
+              width: 32, height: 32, borderRadius: 10,
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              background: `${ACENTO}14`, color: ACENTO, fontSize: 16, fontWeight: 700,
+            }}>◉</span>
+            <div style={{ flex: 1 }}>
+              <p style={{
+                fontFamily: "var(--font-head)", fontSize: 14, fontWeight: 700,
+                color: "var(--text)", margin: 0, letterSpacing: "-0.01em",
+              }}>Usuarios autorizados</p>
+              <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0", fontWeight: 300 }}>
+                {totalUsuarios} {totalUsuarios === 1 ? "usuario" : "usuarios"} — edita el rol desde el selector o elimínalos de la lista
+              </p>
+            </div>
+            {totalUsuarios > 0 && (
+              <div style={{ display: "flex", gap: 6 }}>
+                {ROLES.filter(r => porRol[r] > 0).map(r => (
+                  <span key={r} style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    fontSize: 10, padding: "3px 9px", borderRadius: 99,
+                    background: `${ROLE_COLOR[r]}14`, color: ROLE_COLOR[r],
+                    fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase",
+                  }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: ROLE_COLOR[r] }} />
+                    {r} · {porRol[r]}
+                  </span>
+                ))}
+              </div>
+            )}
+            <span style={{
+              fontSize: 12, color: "var(--text3)",
+              transition: "transform 0.2s",
+              transform: usuariosAbierto ? "rotate(90deg)" : "rotate(0deg)",
+              display: "inline-block",
+            }}>▶</span>
+          </div>
+
+          {usuariosAbierto && <>
+          {loading && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 0", color: "var(--text3)", fontSize: 13 }}>
+              <span className="spinner" style={{
+                width: 16, height: 16, border: "2px solid var(--border)", borderTopColor: ACENTO,
+                borderRadius: "50%", animation: "spin 0.8s linear infinite",
+              }} />
+              Cargando usuarios...
+            </div>
+          )}
+          {error && <p className="table-msg error">{error}</p>}
+
           {!loading && !error && (
             <>
-              <p className="table-count">{Object.keys(usuarios).length} usuarios</p>
-              <div className="table-scroll">
-                <table className="data-table">
+              <div className="table-scroll" style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
+                <table className="data-table" style={{ margin: 0 }}>
                   <thead>
-                    <tr><th>Correo</th><th>Rol</th><th>Acción</th></tr>
+                    <tr>
+                      <th>Correo</th>
+                      <th style={{ width: 200 }}>Rol</th>
+                      <th style={{ width: 120, textAlign: "right" }}>Acción</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {Object.entries(usuarios).map(([email, r]) => (
                       <tr key={email}>
-                        <td style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{email}</td>
                         <td>
-                          <select className="rol-select" value={r} onChange={e => cambiarRol(email, e.target.value)}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{
+                              width: 28, height: 28, borderRadius: "50%",
+                              background: `${ROLE_COLOR[r] || ACENTO}18`,
+                              color: ROLE_COLOR[r] || ACENTO,
+                              display: "inline-flex", alignItems: "center", justifyContent: "center",
+                              fontFamily: "var(--font-head)", fontSize: 11, fontWeight: 700,
+                              flexShrink: 0,
+                            }}>
+                              {email.charAt(0).toUpperCase()}
+                            </span>
+                            <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text)" }}>
+                              {email}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            className="rol-select"
+                            value={r}
+                            onChange={e => cambiarRol(email, e.target.value)}
+                            style={{
+                              fontFamily: "var(--font-body)",
+                              fontSize: 12, fontWeight: 600,
+                              padding: "5px 28px 5px 12px",
+                              borderRadius: 99,
+                              border: `1px solid ${ROLE_COLOR[r] || "var(--border)"}55`,
+                              background: `${ROLE_COLOR[r] || ACENTO}10`,
+                              color: ROLE_COLOR[r] || "var(--text)",
+                              cursor: "pointer",
+                              appearance: "none",
+                              backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%237A869E' d='M5 6L0 0h10z'/></svg>\")",
+                              backgroundRepeat: "no-repeat",
+                              backgroundPosition: "right 10px center",
+                            }}
+                          >
                             {ROLES.map(ro => <option key={ro} value={ro}>{ro}</option>)}
                           </select>
                         </td>
-                        <td><button className="btn-del" onClick={() => eliminar(email)}>Eliminar</button></td>
+                        <td style={{ textAlign: "right" }}>
+                          <button className="btn-del" onClick={() => eliminar(email)}>
+                            Eliminar
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              {totalUsuarios === 0 && (
+                <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 12, textAlign: "center", padding: "20px 0" }}>
+                  Sin usuarios registrados todavía.
+                </p>
+              )}
             </>
           )}
+          </>}
         </div>
 
+        {/* ── Locales / prefijos ── */}
         <LocalesPrefijosSection flash={flash} />
+
       </div>
+
+      <Toast msg={msg} />
+
+      <style>{`
+        @keyframes spin  { to { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+      `}</style>
     </div>
   );
 }

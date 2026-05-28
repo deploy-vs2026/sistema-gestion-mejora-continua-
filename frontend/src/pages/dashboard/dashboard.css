@@ -1,0 +1,589 @@
+/* ─── Dashboard PFA — Scoped styles ─────────────────────────────────────── */
+/* All rules prefixed with .dashboard-pfa to avoid conflicts with global CSS */
+
+.dashboard-pfa {
+  --vs-pink: #D64294;
+  --vs-navy: #0B1C49;
+  --vs-white: #FFFFFF;
+  --vs-pink-light: #F0A0CC;
+  --vs-pink-dark: #A02D6E;
+  --vs-pink-subtle: #FBF0F7;
+  --vs-navy-light: #1E3A7A;
+  --vs-navy-muted: #3D5490;
+  --vs-navy-subtle: #EEF1F8;
+  --vs-gray-light: #F5F6FA;
+  --vs-gray-mid: #8A94A8;
+  --vs-gray-dark: #3A3F52;
+  --vs-success: #1B8A5A;
+  --vs-warning: #D98A00;
+  --vs-danger: #C0392B;
+  --vs-font-title: 'League Spartan', sans-serif;
+  --vs-font-body: 'Montserrat', sans-serif;
+  --vs-radius-sm: 6px;
+  --vs-radius-md: 10px;
+  --vs-radius-lg: 16px;
+  --vs-shadow-sm: 0 1px 4px rgba(11,28,73,0.08);
+  --vs-shadow-md: 0 4px 16px rgba(11,28,73,0.12);
+
+  display: flex;
+  height: calc(100vh - 56px); /* subtract app header height */
+  overflow: hidden;
+  background: var(--vs-gray-light);
+  color: var(--vs-navy);
+  font-family: var(--vs-font-body);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.db-sidebar {
+  width: 220px;
+  background: var(--vs-navy);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+
+.db-sidebar.collapsed {
+  width: 56px;
+}
+
+.db-sidebar-toggle {
+  position: absolute;
+  top: 16px;
+  right: -14px;
+  z-index: 10;
+  background: #D64294;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: background 0.15s;
+}
+
+.db-sidebar-toggle:hover {
+  background: #A02D6E;
+}
+
+.db-sidebar-logo {
+  padding: 1.25rem 1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.db-sidebar.collapsed .db-sidebar-logo {
+  padding: 0.75rem 0;
+  border-bottom-color: transparent;
+}
+
+.db-sb-logo-text {
+  font-family: var(--vs-font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.db-sidebar.collapsed .db-sb-logo-text {
+  opacity: 0;
+}
+
+.db-sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.db-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 2px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #8A94A8;
+  transition: all 0.15s;
+}
+
+.db-nav-item.active {
+  background: rgba(214,66,148,0.15);
+  color: #D64294;
+}
+
+.db-nav-item:hover:not(.active) {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.db-sidebar.collapsed .db-nav-item {
+  padding: 12px 0;
+  justify-content: center;
+  margin: 2px 4px;
+}
+
+.db-nav-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  line-height: 1;
+}
+
+.db-sidebar.collapsed .db-nav-icon {
+  font-size: 20px;
+  width: auto;
+}
+
+.db-nav-label {
+  font-family: var(--vs-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  max-width: 160px;
+  transition: opacity 0.15s, max-width 0.25s;
+}
+
+.db-sidebar.collapsed .db-nav-label {
+  opacity: 0;
+  max-width: 0;
+}
+
+/* ─── Content area ───────────────────────────────────────────────────────── */
+.db-content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.db-main {
+  padding: 1.5rem 1.75rem 3rem;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+/* ─── Filter bar ─────────────────────────────────────────────────────────── */
+.db-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: var(--vs-white);
+  border: 1px solid #D0D5E8;
+  border-radius: var(--vs-radius-md);
+  padding: 0.75rem 1.1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--vs-shadow-sm);
+}
+
+.db-filter-bar label {
+  font-size: 11px;
+  color: var(--vs-gray-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.db-filter-bar input[type="date"],
+.db-filter-bar select {
+  background: var(--vs-gray-light);
+  border: 1px solid #D0D5E8;
+  color: var(--vs-navy);
+  font-family: var(--vs-font-body);
+  font-size: 12px;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--vs-radius-sm);
+  outline: none;
+}
+
+.db-filter-bar input:focus,
+.db-filter-bar select:focus {
+  border-color: var(--vs-pink);
+}
+
+.db-range-label {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--vs-gray-mid);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.db-btn-primary {
+  background: var(--vs-pink);
+  color: var(--vs-white);
+  font-family: var(--vs-font-body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 20px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.db-btn-primary:hover {
+  background: var(--vs-pink-dark);
+}
+
+.db-btn-ghost {
+  background: transparent;
+  color: var(--vs-navy);
+  font-family: var(--vs-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border: 1.5px solid #D0D5E8;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.db-btn-ghost:hover {
+  border-color: var(--vs-navy);
+}
+
+/* ─── KPI cards ──────────────────────────────────────────────────────────── */
+.db-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.db-kpis-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.db-kpis-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .db-kpis,
+  .db-kpis-4,
+  .db-kpis-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.db-kpi {
+  background: var(--vs-white);
+  border: 1px solid #D0D5E8;
+  border-radius: var(--vs-radius-lg);
+  padding: 1.1rem 1.3rem;
+  box-shadow: var(--vs-shadow-sm);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.db-kpi:hover {
+  border-color: var(--vs-pink);
+  transform: translateY(-2px);
+}
+
+.db-kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--vs-gray-mid);
+  margin-bottom: 0.45rem;
+  font-weight: 600;
+}
+
+.db-kpi-val {
+  font-family: var(--vs-font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.db-kpi-val.pink  { color: var(--vs-pink); }
+.db-kpi-val.navy  { color: var(--vs-navy); }
+.db-kpi-val.warn  { color: var(--vs-warning); }
+
+.db-kpi-sub {
+  font-size: 11px;
+  color: var(--vs-gray-mid);
+  margin-top: 0.3rem;
+}
+
+/* ─── Chart panel ────────────────────────────────────────────────────────── */
+.db-chart-panel {
+  background: var(--vs-white);
+  border: 1px solid #D0D5E8;
+  border-radius: var(--vs-radius-lg);
+  padding: 1.4rem 1.5rem;
+  box-shadow: var(--vs-shadow-sm);
+}
+
+.db-chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.db-hier-pill {
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-family: var(--vs-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #D0D5E8;
+  background: var(--vs-gray-light);
+  color: var(--vs-gray-dark);
+  transition: all 0.15s;
+}
+
+.db-hier-pill.active {
+  background: var(--vs-pink);
+  color: var(--vs-white);
+  border-color: var(--vs-pink);
+}
+
+.db-hier-pill:hover:not(.active):not(:disabled) {
+  border-color: var(--vs-pink);
+  color: var(--vs-pink);
+  background: var(--vs-pink-subtle);
+}
+
+.db-hier-pill:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.db-hier-sep {
+  color: #D0D5E8;
+  font-size: 14px;
+  user-select: none;
+}
+
+.db-toolbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.db-btn-up {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: var(--vs-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #D0D5E8;
+  background: var(--vs-white);
+  color: var(--vs-gray-dark);
+  transition: all 0.15s;
+}
+
+.db-btn-up:hover:not(:disabled) {
+  border-color: var(--vs-navy);
+  color: var(--vs-navy);
+}
+
+.db-btn-up:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.db-drill-ctx {
+  font-size: 11px;
+  color: var(--vs-gray-mid);
+}
+
+.db-drill-ctx strong {
+  color: var(--vs-pink);
+}
+
+.db-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.db-chart-title {
+  font-family: var(--vs-font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vs-navy);
+}
+
+.db-chart-sub {
+  font-size: 11px;
+  color: var(--vs-gray-mid);
+  margin-top: 3px;
+}
+
+.db-chart-wrap {
+  position: relative;
+  height: 400px;
+}
+
+/* ─── Loading overlay ────────────────────────────────────────────────────── */
+.db-chart-loading {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.75);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--vs-gray-mid);
+  font-weight: 500;
+  z-index: 10;
+}
+
+.db-chart-loading.show {
+  display: flex;
+}
+
+/* ─── Op toggle buttons ──────────────────────────────────────────────────── */
+.db-op-toggle {
+  background: transparent;
+  border-radius: 999px;
+  font-family: var(--vs-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  opacity: 0.35;
+  border: 1.5px solid;
+}
+
+.db-op-toggle.active {
+  opacity: 1;
+}
+
+/* ─── Legend ─────────────────────────────────────────────────────────────── */
+.db-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.db-leg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--vs-gray-dark);
+  font-weight: 500;
+}
+
+.db-leg-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.db-leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.db-leg-line {
+  width: 18px;
+  height: 2.5px;
+  border-radius: 2px;
+}
+
+/* ─── Heatmap table ──────────────────────────────────────────────────────── */
+.db-heatmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.db-heatmap-th {
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #8A94A8;
+  border-bottom: 1.5px solid #D0D5E8;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #F5F6FA;
+}
+
+.db-heatmap-th.left {
+  text-align: left;
+}
+
+/* ─── CT table ───────────────────────────────────────────────────────────── */
+.db-ct-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.db-ct-th {
+  padding: 8px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8A94A8;
+  border-bottom: 1.5px solid #D0D5E8;
+  background: #F5F6FA;
+}
+
+/* ─── Period analysis ────────────────────────────────────────────────────── */
+.db-periodos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ─── Context bar (HD) ───────────────────────────────────────────────────── */
+.db-context-bar {
+  font-size: 12px;
+  color: var(--vs-gray-mid);
+  margin-bottom: 0.5rem;
+  min-height: 18px;
+}
+
+/* ─── Grid layouts ───────────────────────────────────────────────────────── */
+.db-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .db-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

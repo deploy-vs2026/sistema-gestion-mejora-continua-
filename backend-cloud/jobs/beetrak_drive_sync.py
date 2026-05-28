@@ -9,6 +9,8 @@ Env vars:
   DRIVE_FOLDER_ID  — ID de la carpeta de Drive (requerido)
   BQ_PROJECT       — default: sigmc-5fae5
   BQ_DATASET       — default: dataflow
+  LOAD_ALL         — si es "true", procesa TODOS los archivos de la carpeta (carga histórica)
+  FROM_DATE        — formato YYYY-MM-DD, combinado con LOAD_ALL filtra archivos con fecha >= este valor
 """
 
 import io
@@ -35,6 +37,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger(__name__)
 
 DRIVE_FOLDER_ID = os.environ.get("DRIVE_FOLDER_ID", "")
+LOAD_ALL = os.environ.get("LOAD_ALL", "").lower() == "true"
+FROM_DATE = os.environ.get("FROM_DATE", "")  # formato YYYY-MM-DD, filtra archivos con fecha >= este valor
 DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -52,8 +56,8 @@ def extraer_fecha_maxima(nombre: str) -> str | None:
     return max(fechas) if fechas else None
 
 
-def encontrar_archivo_mas_nuevo(service) -> dict | None:
-    """Devuelve el archivo .xlsx con la fecha más reciente en el nombre."""
+def listar_archivos(service) -> list[dict]:
+    """Devuelve todos los archivos .xlsx de la carpeta ordenados por fecha en el nombre."""
     query = (
         f"'{DRIVE_FOLDER_ID}' in parents"
         " and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
@@ -63,6 +67,8 @@ def encontrar_archivo_mas_nuevo(service) -> dict | None:
         q=query,
         fields="files(id, name)",
         pageSize=200,
+        supportsAllDrives=True,
+        includeItemsFromAllDrives=True,
     ).execute()
 
     archivos = result.get("files", [])
@@ -70,11 +76,19 @@ def encontrar_archivo_mas_nuevo(service) -> dict | None:
 
     con_fecha = [(f, extraer_fecha_maxima(f["name"])) for f in archivos]
     con_fecha = [(f, fecha) for f, fecha in con_fecha if fecha]
+    con_fecha.sort(key=lambda x: x[1])
+    if FROM_DATE:
+        con_fecha = [(f, fecha) for f, fecha in con_fecha if fecha >= FROM_DATE]
+        log.info(f"Filtro FROM_DATE={FROM_DATE}: {len(con_fecha)} archivos restantes")
+    return [(f, fecha) for f, fecha in con_fecha]
 
-    if not con_fecha:
+
+def encontrar_archivo_mas_nuevo(service) -> dict | None:
+    """Devuelve el archivo .xlsx con la fecha más reciente en el nombre."""
+    archivos = listar_archivos(service)
+    if not archivos:
         return None
-
-    archivo, fecha = max(con_fecha, key=lambda x: x[1])
+    archivo, fecha = archivos[-1]
     log.info(f"Archivo seleccionado: '{archivo['name']}' (fecha máxima: {fecha})")
     return archivo
 
@@ -111,31 +125,49 @@ def preparar_tipos_bq(df_clean: pd.DataFrame) -> pd.DataFrame:
     return df_bq
 
 
-def main():
-    if not DRIVE_FOLDER_ID:
-        raise ValueError("La variable de entorno DRIVE_FOLDER_ID es requerida.")
-
-    log.info("=== Beetrak Drive Sync — inicio ===")
-    service = get_drive_service()
-
-    archivo = encontrar_archivo_mas_nuevo(service)
-    if not archivo:
-        log.warning("No se encontraron archivos .xlsx con fechas válidas en la carpeta de Drive.")
-        return
-
-    contenido = descargar_archivo(service, archivo["id"])
-    df_raw = leer_excel(contenido, "beetrak")
-    log.info(f"Filas leídas del Excel: {len(df_raw)}")
-
+def procesar_archivo(service, archivo: dict):
     columnas_bt = get_columnas_beetrak()
     locales_bt = get_local_prefijos()
+
+    log.info(f"Descargando '{archivo['name']}' ...")
+    contenido = descargar_archivo(service, archivo["id"])
+    df_raw = leer_excel(contenido, "beetrak")
+    log.info(f"Filas leídas: {len(df_raw)}")
+
     df_clean = limpiar_beetrak(df_raw, columnas_bt, locales_bt)
     df_bq = preparar_tipos_bq(df_clean)
 
     merge_beetrak(df_bq)
     registrar_carga("beetrak_drive", archivo["name"], len(df_bq))
+    log.info(f"OK: {len(df_bq)} filas insertadas desde '{archivo['name']}'")
 
-    log.info(f"=== Completado: {len(df_bq)} filas procesadas desde '{archivo['name']}' ===")
+
+def main():
+    if not DRIVE_FOLDER_ID:
+        raise ValueError("La variable de entorno DRIVE_FOLDER_ID es requerida.")
+
+    log.info(f"=== Beetrak Drive Sync — inicio (LOAD_ALL={LOAD_ALL}) ===")
+    service = get_drive_service()
+
+    if LOAD_ALL:
+        archivos = listar_archivos(service)
+        if not archivos:
+            log.warning("No se encontraron archivos .xlsx con fechas válidas.")
+            return
+        log.info(f"Modo LOAD_ALL: procesando {len(archivos)} archivos...")
+        for archivo, fecha in archivos:
+            try:
+                procesar_archivo(service, archivo)
+            except Exception as e:
+                log.error(f"Error procesando '{archivo['name']}': {e}")
+        log.info(f"=== Completado: {len(archivos)} archivos procesados ===")
+    else:
+        archivo = encontrar_archivo_mas_nuevo(service)
+        if not archivo:
+            log.warning("No se encontraron archivos .xlsx con fechas válidas.")
+            return
+        procesar_archivo(service, archivo)
+        log.info(f"=== Completado ===")
 
 
 if __name__ == "__main__":
