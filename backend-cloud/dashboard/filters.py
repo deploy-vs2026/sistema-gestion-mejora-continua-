@@ -33,7 +33,7 @@ def hd_tipo_servicio_filter(tipo_servicio: str = None) -> str:
     MIXTO = """(
         LEFT(identificador, 4) = 'HDVS'
         AND COALESCE(DATETIME_DIFF(tiempo_max_entrega, tiempo_min_entrega, HOUR), 0) = 2
-        AND local IN ('45','58','98','99','120','121')
+        AND local IN ('45','58','95','98','99','120','121')
     )"""
 
     ESTIVAL_PURO = """(
@@ -41,7 +41,7 @@ def hd_tipo_servicio_filter(tipo_servicio: str = None) -> str:
         AND local IN ('99','657','618','94','120','121','58','98','608','143')
         AND NOT (
             COALESCE(DATETIME_DIFF(tiempo_max_entrega, tiempo_min_entrega, HOUR), 0) = 2
-            AND local IN ('45','58','98','99','120','121')
+            AND local IN ('45','58','95','98','99','120','121')
         )
     )"""
 

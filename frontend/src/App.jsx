@@ -28,12 +28,12 @@ const SHELL_EXCLUDED = ["/login", "/denied", "/waiting"];
 
 function AppContent() {
   const location      = useLocation();
-  const { rol, user } = useAuth();
+  const { rol, user, permisos } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const showShell    = user && !SHELL_EXCLUDED.includes(location.pathname);
   const pickerActive = location.pathname === "/picker-outsourcing";
-  const hasAccess    = PERMISOS[rol]?.includes("picker-outsourcing");
+  const hasAccess    = ((permisos ?? PERMISOS)[rol] ?? PERMISOS[rol])?.includes("picker-outsourcing");
 
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 

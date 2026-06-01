@@ -58,7 +58,7 @@ FILTRO_LAT_BEETRAK = """
 """
 
 LOCALES_ESTIVAL      = ('99','657','618','94','120','121','58','98','608','143')
-LOCALES_MODELO_MIXTO = ('45','58','98','99','120','121')
+LOCALES_MODELO_MIXTO = ('45','58','95','98','99','120','121')
 
 FILTRO_HD_ESTIVAL = """
     LEFT(identificador, 4) = 'HDVS'
@@ -68,7 +68,7 @@ FILTRO_HD_ESTIVAL = """
 FILTRO_HD_MIXTO = """
     LEFT(identificador, 4) = 'HDVS'
     AND COALESCE(DATETIME_DIFF(tiempo_max_entrega, tiempo_min_entrega, HOUR), 0) = 2
-    AND local IN ('45','58','98','99','120','121')
+    AND local IN ('45','58','95','98','99','120','121')
 """
 
 FB_FECHA = """

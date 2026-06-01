@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { VISTAS } from "../permisos";
 
 const API   = import.meta.env.VITE_API_URL || "https://dataflow-api-519623119758.us-central1.run.app";
 const ROLES = ["admin", "master", "finanzas", "mejora", "operaciones"];
@@ -429,6 +431,192 @@ function LocalesPrefijosSection({ flash }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Pestañas por rol (rol → vistas permitidas)
+═══════════════════════════════════════════════════════════════════════════ */
+function PermisosSection({ flash }) {
+  const { reloadPermisos } = useAuth();
+  const [matrix,    setMatrix]    = useState(null);
+  const [editado,   setEditado]   = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [abierto,   setAbierto]   = useState(false);
+
+  const cargar = () => {
+    fetch(`${API}/configuracion/permisos`)
+      .then(r => r.json())
+      .then(d => { setMatrix(d && typeof d === "object" ? d : {}); setEditado(false); })
+      .catch(() => { setMatrix({}); setEditado(false); });
+  };
+
+  useEffect(cargar, []);
+
+  // El rol admin siempre debe conservar acceso al panel admin (anti-bloqueo)
+  const bloqueado = (rol, view) => rol === "admin" && view === "admin";
+
+  const tiene = (rol, view) => (matrix?.[rol] ?? []).includes(view);
+
+  const toggle = (rol, view) => {
+    if (bloqueado(rol, view)) return;
+    setMatrix(prev => {
+      const actual = new Set(prev?.[rol] ?? []);
+      if (actual.has(view)) actual.delete(view);
+      else                  actual.add(view);
+      // mantener el orden de VISTAS
+      const ordenadas = VISTAS.filter(v => actual.has(v.view)).map(v => v.view);
+      return { ...prev, [rol]: ordenadas };
+    });
+    setEditado(true);
+  };
+
+  const guardar = async () => {
+    setGuardando(true);
+    try {
+      // Garantizar admin→admin antes de enviar
+      const payload = { ...matrix };
+      ROLES.forEach(r => { if (!payload[r]) payload[r] = []; });
+      if (!payload.admin.includes("admin")) payload.admin = [...payload.admin, "admin"];
+
+      const res = await fetch(`${API}/configuracion/permisos`, {
+        method:  "PUT",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Error al guardar");
+      flash("Permisos guardados");
+      setEditado(false);
+      reloadPermisos();   // refresca el sidebar/rutas en vivo
+      cargar();
+    } catch (e) {
+      flash(e.message, false);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  if (!matrix) return (
+    <div style={{ ...cardBase, padding: "18px 20px", marginBottom: 16 }}>
+      <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: ORANGE }} />
+      {sectionTitle("⊞", ORANGE, "Pestañas por rol", "cargando configuración...")}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", color: "var(--text3)", fontSize: 13 }}>
+        <span className="spinner" style={{
+          width: 16, height: 16, border: "2px solid var(--border)", borderTopColor: ORANGE,
+          borderRadius: "50%", animation: "spin 0.8s linear infinite",
+        }} />
+        Cargando...
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ ...cardBase, padding: "18px 20px", marginBottom: 16 }}>
+      <div style={{ position: "absolute", inset: "0 0 auto 0", height: 2, background: ORANGE }} />
+
+      {/* Header colapsable */}
+      <div
+        onClick={() => setAbierto(v => !v)}
+        style={{
+          display: "flex", alignItems: "center", gap: 12,
+          cursor: "pointer", userSelect: "none",
+          marginBottom: abierto ? 14 : 0,
+        }}
+      >
+        <span style={{
+          width: 32, height: 32, borderRadius: 10,
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          background: `${ORANGE}14`, color: ORANGE, fontSize: 16, fontWeight: 700,
+        }}>⊞</span>
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontFamily: "var(--font-head)", fontSize: 14, fontWeight: 700,
+            color: "var(--text)", margin: 0, letterSpacing: "-0.01em",
+          }}>Pestañas por rol</p>
+          <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0", fontWeight: 300 }}>
+            Marca qué vistas puede ver cada rol — afecta el menú y el acceso a las rutas
+          </p>
+        </div>
+        {editado && (
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontSize: 11, padding: "4px 10px", borderRadius: 99,
+            background: `${ORANGE}14`, color: ORANGE, fontWeight: 600,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: ORANGE }} />
+            Sin guardar
+          </span>
+        )}
+        <span style={{
+          fontSize: 12, color: "var(--text3)",
+          transition: "transform 0.2s",
+          transform: abierto ? "rotate(90deg)" : "rotate(0deg)",
+          display: "inline-block",
+        }}>▶</span>
+      </div>
+
+      {abierto && <>
+        <div className="table-scroll" style={{ border: "1px solid var(--border)", borderRadius: 10 }}>
+          <table className="data-table" style={{ margin: 0 }}>
+            <thead>
+              <tr>
+                <th style={{ position: "sticky", left: 0, zIndex: 2, background: "var(--bg)" }}>Rol</th>
+                {VISTAS.map(v => (
+                  <th key={v.view} style={{ textAlign: "center" }}>{v.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ROLES.map(rol => (
+                <tr key={rol}>
+                  <td style={{ position: "sticky", left: 0, zIndex: 1, background: "var(--bg2)" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      fontSize: 11, padding: "3px 9px", borderRadius: 99,
+                      background: `${ROLE_COLOR[rol] || ACENTO}14`, color: ROLE_COLOR[rol] || ACENTO,
+                      fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase",
+                    }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: ROLE_COLOR[rol] || ACENTO }} />
+                      {rol}
+                    </span>
+                  </td>
+                  {VISTAS.map(v => {
+                    const checked = tiene(rol, v.view);
+                    const locked  = bloqueado(rol, v.view);
+                    return (
+                      <td key={v.view} style={{ textAlign: "center" }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={locked}
+                          title={locked ? "El admin siempre conserva acceso al panel admin" : `${checked ? "Quitar" : "Dar"} acceso a "${v.label}"`}
+                          onChange={() => toggle(rol, v.view)}
+                          style={{
+                            width: 16, height: 16,
+                            cursor: locked ? "not-allowed" : "pointer",
+                            accentColor: ROLE_COLOR[rol] || ACENTO,
+                            opacity: locked ? 0.55 : 1,
+                          }}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
+          <button className="btn-add" onClick={guardar} disabled={!editado || guardando}>
+            {guardando ? "Guardando..." : "Guardar permisos"}
+          </button>
+          <button className="btn-ghost" onClick={cargar} disabled={guardando}>
+            ↺ Descartar cambios
+          </button>
+        </div>
+      </>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Toast (flash messages)
 ═══════════════════════════════════════════════════════════════════════════ */
 function Toast({ msg }) {
@@ -688,7 +876,7 @@ export default function Admin() {
 
           {!loading && !error && (
             <>
-              <div className="table-scroll" style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
+              <div className="table-scroll" style={{ border: "1px solid var(--border)", borderRadius: 10 }}>
                 <table className="data-table" style={{ margin: 0 }}>
                   <thead>
                     <tr>
@@ -759,6 +947,9 @@ export default function Admin() {
           )}
           </>}
         </div>
+
+        {/* ── Pestañas por rol ── */}
+        <PermisosSection flash={flash} />
 
         {/* ── Locales / prefijos ── */}
         <LocalesPrefijosSection flash={flash} />
