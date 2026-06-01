@@ -1738,6 +1738,38 @@ def get_local_prefijos() -> dict:
         log.warning(f"No se pudo leer config locales: {e}")
     return LOCAL_PREFIJOS
 
+
+# Mapa rol → vistas permitidas (default). Debe coincidir con frontend/src/permisos.js
+PERMISOS_DEFAULT = {
+    "admin":       ["master", "finanzas", "mejora", "falabella", "falabella-historico", "instaleep", "picker-outsourcing", "dashboard-pfa", "admin"],
+    "master":      ["master"],
+    "finanzas":    ["master", "finanzas", "dashboard-pfa"],
+    "mejora":      ["mejora", "master"],
+    "operaciones": ["dashboard-pfa", "picker-outsourcing"],
+}
+
+
+def get_permisos() -> dict:
+    """Devuelve el mapa rol→vistas guardado, o el default si no hay config.
+    El rol admin siempre conserva acceso al panel admin (anti-bloqueo)."""
+    try:
+        rows = list(bq_client.query(f"""
+            SELECT config FROM `{BQ_TABLE_CONFIG}`
+            WHERE tipo = 'permisos'
+            ORDER BY actualizado_en DESC LIMIT 1
+        """).result())
+        if rows:
+            stored = json.loads(rows[0]["config"])
+            if isinstance(stored, dict):
+                admin_vistas = stored.get("admin") or list(PERMISOS_DEFAULT["admin"])
+                if "admin" not in admin_vistas:
+                    admin_vistas.append("admin")
+                stored["admin"] = admin_vistas
+                return stored
+    except Exception as e:
+        log.warning(f"No se pudo leer config permisos: {e}")
+    return PERMISOS_DEFAULT
+
 @app.get("/configuracion/beetrak")
 def get_config_beetrak():
     return get_columnas_beetrak()
@@ -1796,6 +1828,40 @@ async def put_config_locales(request: Request):
         return {"ok": True}
     except Exception as e:
         log.error(f"Error guardando config locales: {e}", exc_info=True)
+        raise HTTPException(500, str(e))
+
+@app.get("/configuracion/permisos")
+def get_config_permisos():
+    return get_permisos()
+
+@app.put("/configuracion/permisos")
+async def put_config_permisos(request: Request):
+    """Guarda el mapa rol→vistas. Body: { "finanzas": ["master","finanzas"], ... }"""
+    body = await request.json()
+    if not isinstance(body, dict) or not body:
+        raise HTTPException(400, "El body debe ser un objeto {rol: [vistas]}")
+    # Anti-bloqueo: el rol admin nunca puede perder acceso al panel admin
+    admin_vistas = body.get("admin")
+    if isinstance(admin_vistas, list) and "admin" not in admin_vistas:
+        admin_vistas.append("admin")
+    try:
+        _init_tabla_config()
+        df = pd.DataFrame([{
+            "tipo":           "permisos",
+            "config":         json.dumps(body, ensure_ascii=False),
+            "actualizado_en": datetime.now(timezone.utc),
+        }])
+        otros = list(bq_client.query(
+            f"SELECT tipo, config, actualizado_en FROM `{BQ_TABLE_CONFIG}` WHERE tipo != 'permisos'"
+        ).result())
+        rows_otros = [{"tipo": r["tipo"], "config": r["config"], "actualizado_en": r["actualizado_en"]} for r in otros]
+        df_final = pd.concat([df, pd.DataFrame(rows_otros)], ignore_index=True) if rows_otros else df
+        job_cfg = bigquery.LoadJobConfig(write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE)
+        bq_client.load_table_from_dataframe(df_final, BQ_TABLE_CONFIG, job_config=job_cfg).result()
+        log.info("Config permisos actualizada")
+        return {"ok": True}
+    except Exception as e:
+        log.error(f"Error guardando config permisos: {e}", exc_info=True)
         raise HTTPException(500, str(e))
 
 

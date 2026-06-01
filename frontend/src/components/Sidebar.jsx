@@ -82,7 +82,7 @@ const DASH_SUB_ITEMS = [
 ];
 
 export default function Sidebar({ mobileOpen, onClose }) {
-  const { rol }    = useAuth();
+  const { rol, permisos } = useAuth();
   const location   = useLocation();
 
   const isDashActive = location.pathname.startsWith("/dashboard-pfa") || location.pathname === "/picker-outsourcing";
@@ -92,9 +92,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
     if (isDashActive) setDashOpen(true);
   }, [isDashActive]);
 
-  const perms   = PERMISOS[rol] ?? [];
+  const perms   = (permisos ?? PERMISOS)[rol] ?? PERMISOS[rol] ?? [];
   const hasDash = perms.includes("dashboard-pfa") || perms.includes("picker-outsourcing");
-  const visible   = NAV_ITEMS.filter(item => PERMISOS[rol]?.includes(item.view));
+  const visible   = NAV_ITEMS.filter(item => perms.includes(item.view));
   const mainItems = visible.filter(i => i.view !== "admin" && i.view !== "picker-outsourcing");
   const adminItem = visible.find(i => i.view === "admin");
 

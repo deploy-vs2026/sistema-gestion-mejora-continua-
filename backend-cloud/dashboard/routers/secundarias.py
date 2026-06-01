@@ -35,7 +35,7 @@ def secundarias_kpis(
     where = beetrak_filters(local, fecha_inicio, fecha_fin)
     sql = f"""
         SELECT
-            COUNT(*)                                              AS total_pedidos,
+            COUNT(DISTINCT orden)                                 AS total_pedidos,
             COUNT(DISTINCT LEFT(identificador, 4))               AS total_ppus,
             COUNT(DISTINCT identificador)                        AS total_prestadores,
             ROUND(SAFE_DIVIDE(
@@ -65,7 +65,7 @@ def secundarias_semanal(
             LEFT(identificador, 4)                                AS ppu,
             {PPU_CASE}                                            AS transportadora,
             COUNT(DISTINCT identificador)                         AS prestadores,
-            COUNT(*)                                              AS pedidos,
+            COUNT(DISTINCT orden)                                 AS pedidos,
             ROUND(SAFE_DIVIDE(COUNTIF(fecha_primer_intento <= tiempo_max_entrega), COUNT(*)) * 100, 1) AS ontime_pct
         FROM `{BEETRAK_TABLE}`
         {where}
@@ -90,7 +90,7 @@ def secundarias_diario(
             LEFT(identificador, 4)                            AS ppu,
             {PPU_CASE}                                        AS transportadora,
             COUNT(DISTINCT identificador)                     AS prestadores,
-            COUNT(*)                                          AS pedidos,
+            COUNT(DISTINCT orden)                             AS pedidos,
             ROUND(SAFE_DIVIDE(COUNTIF(fecha_primer_intento <= tiempo_max_entrega), COUNT(*)) * 100, 1) AS ontime_pct
         FROM `{BEETRAK_TABLE}`
         {where}
@@ -111,8 +111,8 @@ def secundarias_ppu(
         SELECT
             LEFT(identificador, 4)    AS ppu,
             {PPU_CASE}                AS transportadora,
-            COUNT(*)                  AS pedidos,
-            ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 2) AS pct
+            COUNT(DISTINCT orden)                                        AS pedidos,
+            ROUND(COUNT(DISTINCT orden) * 100.0 / SUM(COUNT(DISTINCT orden)) OVER(), 2) AS pct
         FROM `{BEETRAK_TABLE}`
         {where}
         GROUP BY 1, 2

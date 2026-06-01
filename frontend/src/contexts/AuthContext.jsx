@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { PERMISOS as PERMISOS_DEFAULT } from "../permisos";
 
 const ADMIN_EMAIL   = "agustin.williamson@valdishopper.com";
 const ALLOWED_DOMAIN = "valdishopper.com";
@@ -11,8 +12,20 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user,      setUser]      = useState(null);
   const [rol,       setRol]       = useState(null);
+  // Mapa rol→vistas. Arranca con el default estático (nunca queda vacío) y se
+  // hidrata desde el backend. Si el backend falla, se mantiene el default.
+  const [permisos,  setPermisos]  = useState(PERMISOS_DEFAULT);
   // "loading" | "anon" | "denied" | "waiting" | "ok"
   const [authState, setAuthState] = useState("loading");
+
+  const reloadPermisos = useCallback(() => {
+    fetch(`${API}/configuracion/permisos`)
+      .then(r => r.json())
+      .then(d => { if (d && typeof d === "object" && Object.keys(d).length) setPermisos(d); })
+      .catch(() => { /* se mantiene el default */ });
+  }, []);
+
+  useEffect(() => { reloadPermisos(); }, [reloadPermisos]);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (firebaseUser) => {
@@ -65,7 +78,7 @@ export function AuthProvider({ children }) {
   const logout = () => signOut(auth);
 
   return (
-    <AuthContext.Provider value={{ user, rol, authState, login, logout }}>
+    <AuthContext.Provider value={{ user, rol, authState, permisos, reloadPermisos, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
